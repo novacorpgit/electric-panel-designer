@@ -24,6 +24,7 @@ declare global {
   interface Window {
     go: {
       Diagram: any;
+      Grid: any;
       Panel: any;
       Shape: any;
       Spot: any;

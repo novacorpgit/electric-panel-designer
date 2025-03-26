@@ -10,7 +10,7 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent,
 } from '@/components/ui/sidebar';
-import { Database, Cable, Plug, Switch, Server } from 'lucide-react';
+import { Database, Cable, Plug, ToggleLeft, Server } from 'lucide-react';
 
 interface DesignerSidebarProps {
   paletteRefs: {
@@ -65,7 +65,7 @@ const DesignerSidebar: React.FC<DesignerSidebarProps> = ({ paletteRefs }) => {
         
         <SidebarGroup>
           <SidebarGroupLabel className="px-4 py-2">
-            <Switch className="mr-2" />
+            <ToggleLeft className="mr-2" />
             Switches
           </SidebarGroupLabel>
           <SidebarGroupContent>
