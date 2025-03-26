@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -287,12 +288,12 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
 
   const handleLoadModel = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && diagramInstance) {
+    if (file && diagramInstance && goInstance) {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
           const json = e.target?.result as string;
-          diagramInstance.model = go.Model.fromJson(json);
+          diagramInstance.model = goInstance.GraphLinksModel.fromJson(json);
           toast({
             title: "Success",
             description: "Design loaded successfully",
