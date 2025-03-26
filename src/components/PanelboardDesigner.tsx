@@ -59,15 +59,15 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   }, []);
 
   const setupDiagram = (go: GoJSDiagram) => {
-    // Define cell size
-    const CellSize = new go.Size(50, 50);
+    // Define cell size (smaller grid size)
+    const CellSize = new go.Size(25, 25);
     
     // Create the main diagram
     const myDiagram = new go.Diagram(diagramRef.current, {
       grid: new go.Panel('Grid', { gridCellSize: CellSize })
         .add(
-          new go.Shape('LineH', { stroke: 'lightgray' }),
-          new go.Shape('LineV', { stroke: 'lightgray' })
+          new go.Shape('LineH', { stroke: 'rgba(169, 169, 169, 0.3)' }),
+          new go.Shape('LineV', { stroke: 'rgba(169, 169, 169, 0.3)' })
         ),
       'draggingTool.isGridSnapEnabled': true,
       'draggingTool.gridSnapCellSpot': go.Spot.Center,
@@ -97,14 +97,21 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         new go.Shape('Rectangle', {
           name: 'SHAPE',
           fill: 'white',
+          stroke: '#34495e',
+          strokeWidth: 1.5,
           minSize: CellSize,
-          desiredSize: CellSize
+          desiredSize: CellSize,
+          shadowVisible: true,
+          shadowOffset: new go.Point(2, 2),
+          shadowBlur: 3,
+          shadowColor: 'rgba(0, 0, 0, 0.2)'
         })
           .bind('fill', 'color')
           .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify),
         new go.TextBlock({
           alignment: go.Spot.Center,
-          font: 'bold 14px sans-serif'
+          font: 'bold 11px Inter, sans-serif',
+          stroke: '#333'
         }).bind('text', 'label')
       );
 
@@ -117,10 +124,10 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     }
 
     // Define colors for groups
-    const groupFill = 'rgba(128,128,128,0.2)';
-    const groupStroke = 'gray';
-    const dropFill = 'rgba(128,255,255,0.2)';
-    const dropStroke = 'red';
+    const groupFill = 'rgba(41, 128, 185, 0.1)'; // Lighter blue
+    const groupStroke = '#3498db';
+    const dropFill = 'rgba(46, 204, 113, 0.2)'; // Green tint
+    const dropStroke = '#2ecc71'; // Green
 
     // Group template (panels/racks)
     myDiagram.groupTemplate = new go.Group({
@@ -144,15 +151,21 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
           name: 'SHAPE',
           fill: groupFill,
           stroke: groupStroke,
-          minSize: new go.Size(CellSize.width * 2, CellSize.height * 2)
+          strokeWidth: 1.5,
+          minSize: new go.Size(CellSize.width * 2, CellSize.height * 2),
+          shadowVisible: true,
+          shadowOffset: new go.Point(3, 3),
+          shadowBlur: 5,
+          shadowColor: 'rgba(0, 0, 0, 0.15)'
         })
           .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
           .bindObject('fill', 'isHighlighted', (h: boolean) => (h ? dropFill : groupFill))
           .bindObject('stroke', 'isHighlighted', (h: boolean) => (h ? dropStroke : groupStroke)),
         new go.TextBlock({
           alignment: go.Spot.TopLeft,
-          margin: 5,
-          font: 'bold 12px sans-serif'
+          margin: 8,
+          font: 'bold 12px Inter, sans-serif',
+          stroke: '#2c3e50'
         }).bind('text', 'key')
       );
 
@@ -190,7 +203,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       }
     };
 
-    // Initial diagram model with 4 panels (enclosures)
+    // Initial diagram model with panels (enclosures)
     myDiagram.model = new go.GraphLinksModel([
       { key: 'Panel A', isGroup: true, pos: '0 0', size: '200 300' },
       { key: 'Panel B', isGroup: true, pos: '250 0', size: '200 300' },
@@ -203,7 +216,12 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       groupTemplate: myDiagram.groupTemplate,
       maxSelectionCount: 1,
       allowHorizontalScroll: false,
-      allowVerticalScroll: false
+      allowVerticalScroll: false,
+      layout: new go.GridLayout({
+        wrappingColumn: 2,
+        cellSize: new go.Size(80, 80),
+        spacing: new go.Size(5, 5)
+      })
     });
 
     circuitBreakerPalette.model = new go.GraphLinksModel([
@@ -219,7 +237,12 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       groupTemplate: myDiagram.groupTemplate,
       maxSelectionCount: 1,
       allowHorizontalScroll: false,
-      allowVerticalScroll: false
+      allowVerticalScroll: false,
+      layout: new go.GridLayout({
+        wrappingColumn: 2,
+        cellSize: new go.Size(80, 80),
+        spacing: new go.Size(5, 5)
+      })
     });
 
     transformerPalette.model = new go.GraphLinksModel([
@@ -234,7 +257,12 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       groupTemplate: myDiagram.groupTemplate,
       maxSelectionCount: 1,
       allowHorizontalScroll: false,
-      allowVerticalScroll: false
+      allowVerticalScroll: false,
+      layout: new go.GridLayout({
+        wrappingColumn: 2,
+        cellSize: new go.Size(80, 80),
+        spacing: new go.Size(5, 5)
+      })
     });
 
     busbarPalette.model = new go.GraphLinksModel([
@@ -250,7 +278,12 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       groupTemplate: myDiagram.groupTemplate,
       maxSelectionCount: 1,
       allowHorizontalScroll: false,
-      allowVerticalScroll: false
+      allowVerticalScroll: false,
+      layout: new go.GridLayout({
+        wrappingColumn: 2,
+        cellSize: new go.Size(80, 80),
+        spacing: new go.Size(5, 5)
+      })
     });
 
     switchPalette.model = new go.GraphLinksModel([
@@ -332,10 +365,10 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         <div className="flex-1 p-4">
           <div className="mb-6 flex justify-between items-center animate-slide-up">
             <div className="flex gap-2">
-              <Button onClick={toggleTopLevel} variant={allowTopLevel ? "default" : "outline"}>
+              <Button onClick={toggleTopLevel} variant={allowTopLevel ? "default" : "outline"} className="shadow-sm hover:shadow-md transition-all">
                 {allowTopLevel ? "Disable" : "Enable"} Top-Level Placement
               </Button>
-              <Button onClick={handleSaveModel}>
+              <Button onClick={handleSaveModel} className="shadow-sm hover:shadow-md transition-all">
                 Save Design
               </Button>
               <div className="relative">
@@ -346,15 +379,15 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                   onChange={handleLoadModel}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
-                <Button asChild>
+                <Button asChild className="shadow-sm hover:shadow-md transition-all">
                   <label htmlFor="load-model" className="cursor-pointer">Load Design</label>
                 </Button>
               </div>
             </div>
           </div>
           
-          <div className="border rounded-lg shadow-inner bg-slate-50 h-[calc(100vh-120px)]">
-            <div ref={diagramRef} className="gojs-diagram h-full w-full"></div>
+          <div className="border rounded-lg shadow-lg bg-white overflow-hidden">
+            <div ref={diagramRef} className="gojs-diagram h-[calc(100vh-120px)] w-full"></div>
           </div>
           
           <div className="mt-4 text-center text-sm text-gray-500">
