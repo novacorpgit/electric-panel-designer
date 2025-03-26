@@ -11,6 +11,7 @@ import {
   SidebarGroupContent,
 } from '@/components/ui/sidebar';
 import { Database, Cable, Plug, ToggleLeft, Server } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface DesignerSidebarProps {
   paletteRefs: {
@@ -33,12 +34,12 @@ const DesignerSidebar: React.FC<DesignerSidebarProps> = ({ paletteRefs }) => {
           Drag components to the design canvas
         </p>
       </SidebarHeader>
-      <SidebarContent className="p-0">
+      <SidebarContent className="p-0 overflow-visible">
         <SidebarGroup>
           <SidebarGroupLabel className="px-4 py-2">
             Circuit Breakers
           </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="max-h-none">
             <div className="p-2" ref={paletteRefs.circuitBreakers}></div>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -48,7 +49,7 @@ const DesignerSidebar: React.FC<DesignerSidebarProps> = ({ paletteRefs }) => {
             <Cable className="mr-2" />
             Transformers
           </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="max-h-none">
             <div className="p-2" ref={paletteRefs.transformers}></div>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -58,7 +59,7 @@ const DesignerSidebar: React.FC<DesignerSidebarProps> = ({ paletteRefs }) => {
             <Plug className="mr-2" />
             Busbars
           </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="max-h-none">
             <div className="p-2" ref={paletteRefs.busbars}></div>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -68,7 +69,7 @@ const DesignerSidebar: React.FC<DesignerSidebarProps> = ({ paletteRefs }) => {
             <ToggleLeft className="mr-2" />
             Switches
           </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="max-h-none">
             <div className="p-2" ref={paletteRefs.switches}></div>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -200,7 +199,10 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     // Circuit Breaker Palette
     const circuitBreakerPalette = new go.Palette(circuitBreakersRef.current, {
       nodeTemplate: myDiagram.nodeTemplate,
-      groupTemplate: myDiagram.groupTemplate
+      groupTemplate: myDiagram.groupTemplate,
+      maxSelectionCount: 1,
+      allowHorizontalScroll: false,
+      allowVerticalScroll: false
     });
 
     circuitBreakerPalette.model = new go.GraphLinksModel([
@@ -213,7 +215,10 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     // Transformer Palette
     const transformerPalette = new go.Palette(transformersRef.current, {
       nodeTemplate: myDiagram.nodeTemplate,
-      groupTemplate: myDiagram.groupTemplate
+      groupTemplate: myDiagram.groupTemplate,
+      maxSelectionCount: 1,
+      allowHorizontalScroll: false,
+      allowVerticalScroll: false
     });
 
     transformerPalette.model = new go.GraphLinksModel([
@@ -225,7 +230,10 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     // Busbar Palette
     const busbarPalette = new go.Palette(busbarsRef.current, {
       nodeTemplate: myDiagram.nodeTemplate,
-      groupTemplate: myDiagram.groupTemplate
+      groupTemplate: myDiagram.groupTemplate,
+      maxSelectionCount: 1,
+      allowHorizontalScroll: false,
+      allowVerticalScroll: false
     });
 
     busbarPalette.model = new go.GraphLinksModel([
@@ -238,7 +246,10 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     // Switch Palette
     const switchPalette = new go.Palette(switchesRef.current, {
       nodeTemplate: myDiagram.nodeTemplate,
-      groupTemplate: myDiagram.groupTemplate
+      groupTemplate: myDiagram.groupTemplate,
+      maxSelectionCount: 1,
+      allowHorizontalScroll: false,
+      allowVerticalScroll: false
     });
 
     switchPalette.model = new go.GraphLinksModel([
