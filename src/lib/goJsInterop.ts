@@ -5,6 +5,7 @@
 
 // Define interfaces for GoJS objects
 export interface GoJSDiagram {
+  Diagram: any;
   Grid: any;
   Panel: any;
   Shape: any;
