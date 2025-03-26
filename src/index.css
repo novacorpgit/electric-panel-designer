@@ -1,10 +1,11 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 210 40% 98%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -13,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 215 100% 50%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -35,19 +36,12 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -97,5 +91,51 @@
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .palette-container {
+    @apply p-4 bg-white rounded-lg shadow-md mb-4 transition-all duration-300 backdrop-blur-sm bg-opacity-80;
+  }
+  
+  .diagram-container {
+    @apply bg-white rounded-lg shadow-md transition-all duration-300 backdrop-blur-sm bg-opacity-80;
+  }
+
+  .panel-title {
+    @apply text-sm font-medium text-gray-500 mb-2;
+  }
+  
+  .gojs-diagram {
+    @apply w-full h-full border border-gray-200 rounded-lg overflow-hidden transition-all duration-300;
+  }
+  
+  .gojs-palette {
+    @apply w-full h-24 border border-gray-200 rounded-lg overflow-hidden transition-all duration-300;
+  }
+  
+  .button-primary {
+    @apply px-4 py-2 bg-primary text-primary-foreground rounded-md shadow-sm transition-all duration-200 
+    hover:shadow-md hover:translate-y-[-1px] active:translate-y-[0px] active:shadow-sm;
+  }
+  
+  .button-secondary {
+    @apply px-4 py-2 bg-secondary text-secondary-foreground rounded-md shadow-sm transition-all duration-200 
+    hover:shadow-md hover:translate-y-[-1px] active:translate-y-[0px] active:shadow-sm;
+  }
+  
+  .section-title {
+    @apply text-xl font-medium text-gray-800 mb-2 relative inline-block;
+  }
+  
+  .section-title::after {
+    content: "";
+    @apply block absolute w-full h-0.5 bg-primary rounded-full bottom-0 left-0 transform scale-x-0 transition-transform duration-300 origin-bottom-left;
+  }
+  
+  .section-title:hover::after {
+    @apply scale-x-100;
   }
 }
