@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -30,6 +29,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [distanceLinks, setDistanceLinks] = useState<any[]>([]);
   const [showGrid, setShowGrid] = useState(true);
+  const [diagramReady, setDiagramReady] = useState(false);
 
   useEffect(() => {
     const initGoJS = async () => {
@@ -59,21 +59,29 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     };
   }, []);
 
-  // Effect to handle distance measurements when enabled/disabled
   useEffect(() => {
     if (diagramInstance && goInstance) {
-      // Add listeners for drag events to show/hide distances during dragging
+      const timer = setTimeout(() => {
+        setDiagramReady(true);
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [diagramInstance, goInstance]);
+
+  useEffect(() => {
+    if (!diagramReady) return;
+
+    if (diagramInstance && goInstance) {
       diagramInstance.addDiagramListener("SelectionMoved", handleSelectionMoved);
       diagramInstance.addDiagramListener("SelectionCopied", handleSelectionMoved);
       diagramInstance.addDiagramListener("ExternalObjectsDropped", handleSelectionMoved);
       diagramInstance.addDiagramListener("PartResized", handleSelectionMoved);
       
-      // Fix: Use correct event names for drag events in GoJS
       diagramInstance.addDiagramListener("ChangedSelection", handleSelectionChanged);
       diagramInstance.addDiagramListener("ChangingSelection", handleSelectionChanged);
       
       return () => {
-        // Clean up event listeners with correct event names
         diagramInstance.removeDiagramListener("SelectionMoved", handleSelectionMoved);
         diagramInstance.removeDiagramListener("SelectionCopied", handleSelectionMoved);
         diagramInstance.removeDiagramListener("ExternalObjectsDropped", handleSelectionMoved);
@@ -83,34 +91,40 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         diagramInstance.removeDiagramListener("ChangingSelection", handleSelectionChanged);
       };
     }
-  }, [diagramInstance, goInstance, showDistances]);
+  }, [diagramInstance, goInstance, showDistances, diagramReady]);
 
-  // Add a selection change event handler
   const handleSelectionChanged = () => {
-    // Check if any parts are selected - this can help determine if dragging might be occurring
-    if (diagramInstance && diagramInstance.selection.count > 0) {
+    if (diagramInstance && diagramInstance.selection && diagramInstance.selection.count > 0) {
       setIsDragging(true);
     } else {
       setIsDragging(false);
     }
   };
 
-  // Effect to update distances when dragging state changes
   useEffect(() => {
-    if (diagramInstance && goInstance) {
+    if (!diagramReady) return;
+    
+    if (diagramInstance && goInstance && diagramInstance.nodes && diagramInstance.groups) {
       if (isDragging && showDistances) {
-        const links = setupDimensioningLinks(diagramInstance, goInstance);
-        setDistanceLinks(links);
+        try {
+          const links = setupDimensioningLinks(diagramInstance, goInstance);
+          setDistanceLinks(links);
+        } catch (error) {
+          console.error("Error setting up dimensioning links:", error);
+        }
       } else if (!isDragging) {
-        clearDistanceLinks(diagramInstance);
-        setDistanceLinks([]);
+        try {
+          clearDistanceLinks(diagramInstance);
+          setDistanceLinks([]);
+        } catch (error) {
+          console.error("Error clearing distance links:", error);
+        }
       }
     }
-  }, [isDragging, diagramInstance, goInstance, showDistances]);
+  }, [isDragging, diagramInstance, goInstance, showDistances, diagramReady]);
 
-  // Effect to handle grid visibility
   useEffect(() => {
-    if (diagramInstance) {
+    if (diagramInstance && diagramInstance.grid) {
       const gridPanel = diagramInstance.grid;
       if (gridPanel) {
         gridPanel.visible = showGrid;
@@ -120,37 +134,37 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   }, [showGrid, diagramInstance]);
 
   const handleSelectionMoved = () => {
-    if (isDragging && showDistances) {
-      // Update distance measurements during dragging
-      const links = setupDimensioningLinks(diagramInstance, goInstance);
-      setDistanceLinks(links);
+    if (!diagramReady) return;
+    
+    if (isDragging && showDistances && diagramInstance && goInstance) {
+      try {
+        const links = setupDimensioningLinks(diagramInstance, goInstance);
+        setDistanceLinks(links);
+      } catch (error) {
+        console.error("Error updating dimensioning links:", error);
+      }
     }
   };
 
-  // Handle the drop event to add components to the diagram
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     
     if (!diagramInstance || !goInstance) return;
     
-    // Get the node data from the drag event
     const data = e.dataTransfer.getData("application/reactflow");
     if (!data) return;
     
     try {
       const nodeInfo = JSON.parse(data);
       
-      // Get mouse position relative to the diagram
       const diagramRect = diagramRef.current?.getBoundingClientRect();
       if (!diagramRect) return;
       
       const x = e.clientX - diagramRect.left;
       const y = e.clientY - diagramRect.top;
       
-      // Convert point to diagram coordinates
       const point = diagramInstance.transformViewToDoc(new goInstance.Point(x, y));
       
-      // Create a new node in the diagram
       const newNodeData = {
         key: `${nodeInfo.type}-${Date.now()}`,
         type: nodeInfo.type,
@@ -167,7 +181,6 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     }
   };
 
-  // Prevent default behavior to allow drop
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
@@ -204,7 +217,6 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     
     setDiagramInstance(myDiagram);
 
-    // Group highlight function
     function highlightGroup(grp: any, show: boolean) {
       if (!grp) return false;
       const tool = grp.diagram.toolManager.draggingTool;
@@ -212,23 +224,18 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       return grp.isHighlighted;
     }
 
-    // Create node templates
     const nodeTemplates = createNodeTemplates(go, CellSize, highlightGroup);
     
-    // Set default node template
     myDiagram.nodeTemplate = nodeTemplates.get("default");
     
-    // Add all specialized templates
     nodeTemplates.forEach((template, key) => {
       if (key !== "default") {
         myDiagram.nodeTemplateMap.add(key, template);
       }
     });
 
-    // Set group template
     myDiagram.groupTemplate = createGroupTemplate(go, CellSize, highlightGroup);
 
-    // Set link template
     myDiagram.linkTemplate = createLinkTemplate(go);
 
     myDiagram.commandHandler.memberValidation = (grp: any, node: any) => {
@@ -263,12 +270,15 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       }
     };
 
-    // Create the model with the initial enclosures
     myDiagram.model = new go.GraphLinksModel([
       { key: 'Panel A', isGroup: true, pos: '0 0', size: '250 350' },
       { key: 'Panel B', isGroup: true, pos: '300 0', size: '250 350' },
       { key: 'Panel C', isGroup: true, pos: '0 400', size: '550 250' }
     ]);
+    
+    setTimeout(() => {
+      setDiagramReady(true);
+    }, 500);
   };
 
   return (

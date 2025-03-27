@@ -67,13 +67,13 @@ export const createDimensioningLink = (
 
 // Function to clear distance links
 export const clearDistanceLinks = (diagramInstance: any) => {
-  if (!diagramInstance) return;
+  if (!diagramInstance || !diagramInstance.links) return;
   
   // Remove any existing distance links
   diagramInstance.startTransaction("Remove distance links");
   const linksToRemove = [];
   diagramInstance.links.each((link: any) => {
-    if (link.data.distanceText) {
+    if (link.data && link.data.distanceText) {
       linksToRemove.push(link.data);
     }
   });
@@ -88,17 +88,26 @@ export const clearDistanceLinks = (diagramInstance: any) => {
 
 // Function to create dimensioning links between components
 export const setupDimensioningLinks = (diagramInstance: any, goInstance: GoJSDiagram) => {
+  // Add comprehensive null checks to prevent the error
   if (!diagramInstance || !goInstance) return [];
+  if (!diagramInstance.nodes || !diagramInstance.groups) return [];
   
   clearDistanceLinks(diagramInstance); // Clear existing links first
   
   // Get all nodes that are components
   const nodes: any[] = [];
-  diagramInstance.nodes.each((node: any) => {
-    if (!node.isGroup && node.actualBounds && node.actualBounds.width > 0) {
-      nodes.push(node);
-    }
-  });
+  
+  // Add try-catch to handle any potential errors during iteration
+  try {
+    diagramInstance.nodes.each((node: any) => {
+      if (node && !node.isGroup && node.actualBounds && node.actualBounds.width > 0) {
+        nodes.push(node);
+      }
+    });
+  } catch (error) {
+    console.error("Error iterating nodes:", error);
+    return [];
+  }
   
   const createdLinks: any[] = [];
   
@@ -107,6 +116,8 @@ export const setupDimensioningLinks = (diagramInstance: any, goInstance: GoJSDia
     for (let j = i + 1; j < nodes.length; j++) {
       const node1 = nodes[i];
       const node2 = nodes[j];
+      
+      if (!node1 || !node2 || !node1.location || !node2.location) continue;
       
       // Create horizontal dimensioning links (if nodes are roughly aligned horizontally)
       if (Math.abs(node1.location.y - node2.location.y) < 100) {
@@ -124,15 +135,26 @@ export const setupDimensioningLinks = (diagramInstance: any, goInstance: GoJSDia
   
   // Create dimensioning links between enclosures (groups)
   const groups: any[] = [];
-  diagramInstance.groups.each((group: any) => {
-    groups.push(group);
-  });
+  
+  // Add try-catch to handle any potential errors during groups iteration
+  try {
+    diagramInstance.groups.each((group: any) => {
+      if (group) {
+        groups.push(group);
+      }
+    });
+  } catch (error) {
+    console.error("Error iterating groups:", error);
+    // Continue with nodes links even if groups iteration fails
+  }
   
   // Create links between groups
   for (let i = 0; i < groups.length; i++) {
     for (let j = i + 1; j < groups.length; j++) {
       const group1 = groups[i];
       const group2 = groups[j];
+      
+      if (!group1 || !group2 || !group1.location || !group2.location) continue;
       
       // Measure distances between enclosures horizontally and vertically
       if (Math.abs(group1.location.y - group2.location.y) < 150) {
