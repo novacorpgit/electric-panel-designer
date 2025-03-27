@@ -59,259 +59,189 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
   templates.set("default", baseNodeTemplate);
   
   // Special node template for NSX250
-  const nsx250Template = new go.Node('Auto', {
-    resizable: true,
-    resizeObjectName: 'SHAPE',
-    locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
-    mouseDragEnter: (e: any, node: any) => {
-      e.handled = true;
-      node.findObject('SHAPE').fill = 'red';
-      e.diagram.currentCursor = 'not-allowed';
-      highlightGroup(node.containingGroup, false);
-    },
-    mouseDragLeave: (e: any, node: any) => node.updateTargetBindings(),
-    mouseDrop: (e: any, node: any) => node.diagram.currentTool.doCancel()
-  })
-    .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
-    .add(
-      new go.Panel("Vertical")
-        .add(
-          new go.Panel("Spot")
-            .add(
-              new go.Shape('Rectangle', {
-                name: 'SHAPE',
-                fill: 'white',
-                stroke: '#34495e',
-                strokeWidth: 1.5,
-                minSize: new go.Size(70, 90),
-                desiredSize: new go.Size(70, 90),
-                shadowVisible: true,
-                shadowOffset: new go.Point(2, 2),
-                shadowBlur: 3,
-                shadowColor: 'rgba(0, 0, 0, 0.2)',
-                visible: false
-              })
-                .bind('fill', 'color')
-                .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
-            )
-            .add(
-              new go.Picture({
-                name: "NSX_IMAGE",
-                source: "/lovable-uploads/b79bb85b-d7f1-41eb-9957-1af1528aaa78.png",
-                desiredSize: new go.Size(70, 90),
-                imageStretch: go.GraphObject.Uniform,
-                alignment: go.Spot.Center
-              })
-            ),
-          new go.TextBlock({
-            margin: new go.Margin(3, 0, 0, 0),
-            font: 'bold 11px Inter, sans-serif',
-            stroke: '#333', // Black text
-            text: "NSX250"
-          })
-        )
-    );
+  const nsx250Template = baseNodeTemplate.copy();
+  nsx250Template.add(
+    new go.Panel("Vertical")
+      .add(
+        new go.Panel("Spot")
+          .add(
+            new go.Shape('Rectangle', {
+              name: 'SHAPE',
+              fill: 'transparent', // Make the shape transparent
+              stroke: 'transparent', // Make the border transparent
+              strokeWidth: 0,
+              minSize: new go.Size(70, 90),
+              desiredSize: new go.Size(70, 90),
+              visible: true // Keep visible for sizing but transparent
+            })
+              .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
+          )
+          .add(
+            new go.Picture({
+              name: "NSX_IMAGE",
+              source: "/lovable-uploads/b79bb85b-d7f1-41eb-9957-1af1528aaa78.png",
+              desiredSize: new go.Size(70, 90),
+              imageStretch: go.GraphObject.Uniform,
+              alignment: go.Spot.Center
+            })
+          ),
+        new go.TextBlock({
+          margin: new go.Margin(3, 0, 0, 0),
+          font: 'bold 11px Inter, sans-serif',
+          stroke: '#333',
+          text: "NSX250"
+        })
+      )
+  );
   
   templates.set("NSX250", nsx250Template);
   
   // Special template for Schneider 250A chassis
-  const schneider250Template = new go.Node('Auto', {
-    resizable: true,
-    resizeObjectName: 'SHAPE',
-    locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
-    mouseDragEnter: (e: any, node: any) => {
-      e.handled = true;
-      node.findObject('SHAPE').fill = 'red';
-      e.diagram.currentCursor = 'not-allowed';
-      highlightGroup(node.containingGroup, false);
-    },
-    mouseDragLeave: (e: any, node: any) => node.updateTargetBindings(),
-    mouseDrop: (e: any, node: any) => node.diagram.currentTool.doCancel()
-  })
-    .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
-    .add(
-      new go.Panel("Vertical")
-        .add(
-          new go.Panel("Spot")
-            .add(
-              new go.Shape('Rectangle', {
-                name: 'SHAPE',
-                fill: '#6b7280', // Gray chassis color
-                stroke: '#4b5563',
-                strokeWidth: 1.5,
-                minSize: new go.Size(80, 120),
-                desiredSize: new go.Size(80, 120),
-                visible: false
-              })
-                .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
-            )
-            .add(
-              new go.Picture({
-                name: "SCHNEIDER_IMAGE",
-                source: "/lovable-uploads/schneider250a.png", // Realistic Schneider switch image
-                desiredSize: new go.Size(80, 120),
-                imageStretch: go.GraphObject.Uniform,
-                alignment: go.Spot.Center
-              })
-            ),
-          new go.TextBlock({
-            margin: new go.Margin(3, 0, 0, 0),
-            font: 'bold 11px Inter, sans-serif',
-            stroke: '#333', // Black text
-            text: "Schneider 250A"
-          })
-        )
-    );
+  const schneider250Template = baseNodeTemplate.copy();
+  schneider250Template.add(
+    new go.Panel("Vertical")
+      .add(
+        new go.Panel("Spot")
+          .add(
+            new go.Shape('Rectangle', {
+              name: 'SHAPE',
+              fill: 'transparent',
+              stroke: 'transparent',
+              strokeWidth: 0,
+              minSize: new go.Size(80, 120),
+              desiredSize: new go.Size(80, 120),
+              visible: true
+            })
+              .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
+          )
+          .add(
+            new go.Picture({
+              name: "SCHNEIDER_IMAGE",
+              source: "/lovable-uploads/schneider250a.png",
+              desiredSize: new go.Size(80, 120),
+              imageStretch: go.GraphObject.Uniform,
+              alignment: go.Spot.Center
+            })
+          ),
+        new go.TextBlock({
+          margin: new go.Margin(3, 0, 0, 0),
+          font: 'bold 11px Inter, sans-serif',
+          stroke: '#333',
+          text: "Schneider 250A"
+        })
+      )
+  );
   
   templates.set("Schneider250A", schneider250Template);
   
-  // Special template for busbars with brown color - now with realistic image
-  const busbarTemplate = new go.Node('Auto', {
-    resizable: true,
-    resizeObjectName: 'SHAPE',
-    locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
-    mouseDragEnter: (e: any, node: any) => {
-      e.handled = true;
-      node.findObject('SHAPE').fill = 'red';
-      e.diagram.currentCursor = 'not-allowed';
-      highlightGroup(node.containingGroup, false);
-    },
-    mouseDragLeave: (e: any, node: any) => node.updateTargetBindings(),
-    mouseDrop: (e: any, node: any) => node.diagram.currentTool.doCancel()
-  })
-    .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
-    .add(
-      new go.Panel("Vertical")
-        .add(
-          new go.Panel("Spot")
-            .add(
-              new go.Shape('Rectangle', {
-                name: 'SHAPE',
-                fill: '#8B4513', // Brown color for busbar
-                stroke: '#5D4037', // Darker brown for outline
-                strokeWidth: 1.5,
-                minSize: new go.Size(150, 30),
-                desiredSize: new go.Size(150, 30),
-                visible: false
-              })
-                .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
-            )
-            .add(
-              new go.Picture({
-                name: "BUSBAR_IMAGE",
-                source: "/lovable-uploads/copper-busbar.png", // Realistic copper busbar image
-                desiredSize: new go.Size(150, 30),
-                imageStretch: go.GraphObject.Fill,
-                alignment: go.Spot.Center
-              })
-            ),
-          new go.TextBlock({
-            margin: new go.Margin(3, 0, 0, 0),
-            font: 'bold 11px Inter, sans-serif',
-            stroke: '#333' // Black text
-          }).bind('text', 'label')
-        )
-    );
+  // Special template for busbars
+  const busbarTemplate = baseNodeTemplate.copy();
+  busbarTemplate.add(
+    new go.Panel("Vertical")
+      .add(
+        new go.Panel("Spot")
+          .add(
+            new go.Shape('Rectangle', {
+              name: 'SHAPE',
+              fill: 'transparent',
+              stroke: 'transparent',
+              strokeWidth: 0,
+              minSize: new go.Size(150, 30),
+              desiredSize: new go.Size(150, 30),
+              visible: true
+            })
+              .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
+          )
+          .add(
+            new go.Picture({
+              name: "BUSBAR_IMAGE",
+              source: "/lovable-uploads/copper-busbar.png",
+              desiredSize: new go.Size(150, 30),
+              imageStretch: go.GraphObject.Fill,
+              alignment: go.Spot.Center
+            })
+          ),
+        new go.TextBlock({
+          margin: new go.Margin(3, 0, 0, 0),
+          font: 'bold 11px Inter, sans-serif',
+          stroke: '#333'
+        }).bind('text', 'label')
+      )
+  );
   
   templates.set("Busbar", busbarTemplate);
   
-  // Circuit breaker template with realistic image
-  const circuitBreakerTemplate = new go.Node('Auto', {
-    resizable: true,
-    resizeObjectName: 'SHAPE',
-    locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
-    mouseDragEnter: (e: any, node: any) => {
-      e.handled = true;
-      node.findObject('SHAPE').fill = 'red';
-      e.diagram.currentCursor = 'not-allowed';
-      highlightGroup(node.containingGroup, false);
-    },
-    mouseDragLeave: (e: any, node: any) => node.updateTargetBindings(),
-    mouseDrop: (e: any, node: any) => node.diagram.currentTool.doCancel()
-  })
-    .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
-    .add(
-      new go.Panel("Vertical")
-        .add(
-          new go.Panel("Spot")
-            .add(
-              new go.Shape('Rectangle', {
-                name: 'SHAPE',
-                fill: '#444444', // Dark gray for circuit breaker
-                stroke: '#222222',
-                strokeWidth: 1.5,
-                minSize: new go.Size(50, 80),
-                desiredSize: new go.Size(50, 80),
-                visible: false
-              })
-                .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
-            )
-            .add(
-              new go.Picture({
-                name: "BREAKER_IMAGE",
-                source: "/lovable-uploads/circuit-breaker.png", // Realistic circuit breaker image
-                desiredSize: new go.Size(50, 80),
-                imageStretch: go.GraphObject.Uniform,
-                alignment: go.Spot.Center
-              })
-            ),
-          new go.TextBlock({
-            margin: new go.Margin(3, 0, 0, 0),
-            font: 'bold 11px Inter, sans-serif',
-            stroke: '#333' // Black text
-          }).bind('text', 'label')
-        )
-    );
+  // Circuit breaker template
+  const circuitBreakerTemplate = baseNodeTemplate.copy();
+  circuitBreakerTemplate.add(
+    new go.Panel("Vertical")
+      .add(
+        new go.Panel("Spot")
+          .add(
+            new go.Shape('Rectangle', {
+              name: 'SHAPE',
+              fill: 'transparent',
+              stroke: 'transparent',
+              strokeWidth: 0,
+              minSize: new go.Size(50, 80),
+              desiredSize: new go.Size(50, 80),
+              visible: true
+            })
+              .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
+          )
+          .add(
+            new go.Picture({
+              name: "BREAKER_IMAGE",
+              source: "/lovable-uploads/circuit-breaker.png",
+              desiredSize: new go.Size(50, 80),
+              imageStretch: go.GraphObject.Uniform,
+              alignment: go.Spot.Center
+            })
+          ),
+        new go.TextBlock({
+          margin: new go.Margin(3, 0, 0, 0),
+          font: 'bold 11px Inter, sans-serif',
+          stroke: '#333'
+        }).bind('text', 'label')
+      )
+  );
   
   templates.set("CircuitBreaker", circuitBreakerTemplate);
   
-  // Transformer template with realistic image
-  const transformerTemplate = new go.Node('Auto', {
-    resizable: true,
-    resizeObjectName: 'SHAPE',
-    locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
-    mouseDragEnter: (e: any, node: any) => {
-      e.handled = true;
-      node.findObject('SHAPE').fill = 'red';
-      e.diagram.currentCursor = 'not-allowed';
-      highlightGroup(node.containingGroup, false);
-    },
-    mouseDragLeave: (e: any, node: any) => node.updateTargetBindings(),
-    mouseDrop: (e: any, node: any) => node.diagram.currentTool.doCancel()
-  })
-    .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
-    .add(
-      new go.Panel("Vertical")
-        .add(
-          new go.Panel("Spot")
-            .add(
-              new go.Shape('Rectangle', {
-                name: 'SHAPE',
-                fill: '#666666', // Medium gray for transformer
-                stroke: '#333333',
-                strokeWidth: 1.5,
-                minSize: new go.Size(100, 100),
-                desiredSize: new go.Size(100, 100),
-                visible: false
-              })
-                .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
-            )
-            .add(
-              new go.Picture({
-                name: "TRANSFORMER_IMAGE",
-                source: "/lovable-uploads/transformer.png", // Realistic transformer image
-                desiredSize: new go.Size(100, 100),
-                imageStretch: go.GraphObject.Uniform,
-                alignment: go.Spot.Center
-              })
-            ),
-          new go.TextBlock({
-            margin: new go.Margin(3, 0, 0, 0),
-            font: 'bold 11px Inter, sans-serif',
-            stroke: '#333' // Black text
-          }).bind('text', 'label')
-        )
-    );
+  // Transformer template
+  const transformerTemplate = baseNodeTemplate.copy();
+  transformerTemplate.add(
+    new go.Panel("Vertical")
+      .add(
+        new go.Panel("Spot")
+          .add(
+            new go.Shape('Rectangle', {
+              name: 'SHAPE',
+              fill: 'transparent',
+              stroke: 'transparent',
+              strokeWidth: 0,
+              minSize: new go.Size(100, 100),
+              desiredSize: new go.Size(100, 100),
+              visible: true
+            })
+              .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
+          )
+          .add(
+            new go.Picture({
+              name: "TRANSFORMER_IMAGE",
+              source: "/lovable-uploads/transformer.png",
+              desiredSize: new go.Size(100, 100),
+              imageStretch: go.GraphObject.Uniform,
+              alignment: go.Spot.Center
+            })
+          ),
+        new go.TextBlock({
+          margin: new go.Margin(3, 0, 0, 0),
+          font: 'bold 11px Inter, sans-serif',
+          stroke: '#333'
+        }).bind('text', 'label')
+      )
+  );
   
   templates.set("Transformer", transformerTemplate);
   

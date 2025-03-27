@@ -34,11 +34,17 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   useEffect(() => {
     const initGoJS = async () => {
       try {
-        const go = await initializeGoJS();
-        setGoInstance(go);
-        
         if (diagramRef.current) {
-          setupDiagram(go);
+          if (diagramInstance) {
+            diagramInstance.div = null;
+          }
+          
+          const go = await initializeGoJS();
+          setGoInstance(go);
+          
+          if (diagramRef.current) {
+            setupDiagram(go);
+          }
         }
       } catch (error) {
         console.error('Failed to initialize GoJS:', error);
@@ -176,6 +182,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       };
       
       console.log("Added new component with data:", newNodeData);
+      diagramInstance.startTransaction("Added new component");
       diagramInstance.model.addNodeData(newNodeData);
       diagramInstance.commitTransaction("Added new component");
     } catch (error) {
@@ -191,96 +198,98 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   const setupDiagram = (go: GoJSDiagram) => {
     const CellSize = new go.Size(10, 10);
     
-    const myDiagram = new go.Diagram(diagramRef.current, {
-      grid: new go.Panel('Grid', { 
-        gridCellSize: CellSize,
-        visible: true,
-        gridStyle: go.Panel.Uniform,
-        className: 'grid-panel'
-      })
-        .add(
-          new go.Shape('LineH', { 
-            stroke: 'rgba(0, 0, 0, 0.2)',  // Darker lines for better visibility
-            strokeWidth: 0.8  // Thicker lines
-          }),
-          new go.Shape('LineV', { 
-            stroke: 'rgba(0, 0, 0, 0.2)',  // Darker lines for better visibility
-            strokeWidth: 0.8  // Thicker lines
-          })
-        ),
-      'draggingTool.isGridSnapEnabled': true,
-      'draggingTool.gridSnapCellSpot': go.Spot.Center,
-      'resizingTool.isGridSnapEnabled': true,
-      'animationManager.isEnabled': true,
-      'undoManager.isEnabled': true,
-      'initialContentAlignment': go.Spot.Center,
-      "allowDrop": true
-    });
-    
-    setDiagramInstance(myDiagram);
+    if (diagramRef.current) {
+      const myDiagram = new go.Diagram(diagramRef.current, {
+        grid: new go.Panel('Grid', { 
+          gridCellSize: CellSize,
+          visible: true,
+          gridStyle: go.Panel.Uniform,
+          className: 'grid-panel'
+        })
+          .add(
+            new go.Shape('LineH', { 
+              stroke: 'rgba(0, 0, 0, 0.2)',
+              strokeWidth: 0.8
+            }),
+            new go.Shape('LineV', { 
+              stroke: 'rgba(0, 0, 0, 0.2)',
+              strokeWidth: 0.8
+            })
+          ),
+        'draggingTool.isGridSnapEnabled': true,
+        'draggingTool.gridSnapCellSpot': go.Spot.Center,
+        'resizingTool.isGridSnapEnabled': true,
+        'animationManager.isEnabled': true,
+        'undoManager.isEnabled': true,
+        'initialContentAlignment': go.Spot.Center,
+        "allowDrop": true
+      });
+      
+      setDiagramInstance(myDiagram);
 
-    function highlightGroup(grp: any, show: boolean) {
-      if (!grp) return false;
-      const tool = grp.diagram.toolManager.draggingTool;
-      grp.isHighlighted = show && grp.canAddMembers(tool.draggingParts);
-      return grp.isHighlighted;
-    }
-
-    const nodeTemplates = createNodeTemplates(go, CellSize, highlightGroup);
-    
-    myDiagram.nodeTemplate = nodeTemplates.get("default");
-    
-    nodeTemplates.forEach((template, key) => {
-      if (key !== "default") {
-        myDiagram.nodeTemplateMap.add(key, template);
+      function highlightGroup(grp: any, show: boolean) {
+        if (!grp) return false;
+        const tool = grp.diagram.toolManager.draggingTool;
+        grp.isHighlighted = show && grp.canAddMembers(tool.draggingParts);
+        return grp.isHighlighted;
       }
-    });
 
-    myDiagram.groupTemplate = createGroupTemplate(go, CellSize, highlightGroup);
+      const nodeTemplates = createNodeTemplates(go, CellSize, highlightGroup);
+      
+      myDiagram.nodeTemplate = nodeTemplates.get("default");
+      
+      nodeTemplates.forEach((template, key) => {
+        if (key !== "default") {
+          myDiagram.nodeTemplateMap.add(key, template);
+        }
+      });
 
-    myDiagram.linkTemplate = createLinkTemplate(go);
+      myDiagram.groupTemplate = createGroupTemplate(go, CellSize, highlightGroup);
 
-    myDiagram.commandHandler.memberValidation = (grp: any, node: any) => {
-      if (grp instanceof go.Group && node instanceof go.Group) return false;
-      return true;
-    };
+      myDiagram.linkTemplate = createLinkTemplate(go);
 
-    myDiagram.mouseDragOver = (e: any) => {
-      if (!allowTopLevel) {
-        const tool = e.diagram.toolManager.draggingTool;
-        if (!tool.draggingParts.all((p: any) => p instanceof go.Group || (!p.isTopLevel && tool.draggingParts.has(p.containingGroup)))) {
-          e.diagram.currentCursor = 'not-allowed';
+      myDiagram.commandHandler.memberValidation = (grp: any, node: any) => {
+        if (grp instanceof go.Group && node instanceof go.Group) return false;
+        return true;
+      };
+
+      myDiagram.mouseDragOver = (e: any) => {
+        if (!allowTopLevel) {
+          const tool = e.diagram.toolManager.draggingTool;
+          if (!tool.draggingParts.all((p: any) => p instanceof go.Group || (!p.isTopLevel && tool.draggingParts.has(p.containingGroup)))) {
+            e.diagram.currentCursor = 'not-allowed';
+          } else {
+            e.diagram.currentCursor = '';
+          }
+        }
+      };
+
+      myDiagram.mouseDrop = (e: any) => {
+        if (allowTopLevel) {
+          if (!e.diagram.commandHandler.addTopLevelParts(e.diagram.selection, true)) {
+            e.diagram.currentTool.doCancel();
+          }
         } else {
-          e.diagram.currentCursor = '';
+          if (
+            !e.diagram.selection.all((p: any) => {
+              return p instanceof go.Group || (!p.isTopLevel && p.containingGroup.isSelected);
+            })
+          ) {
+            e.diagram.currentTool.doCancel();
+          }
         }
-      }
-    };
+      };
 
-    myDiagram.mouseDrop = (e: any) => {
-      if (allowTopLevel) {
-        if (!e.diagram.commandHandler.addTopLevelParts(e.diagram.selection, true)) {
-          e.diagram.currentTool.doCancel();
-        }
-      } else {
-        if (
-          !e.diagram.selection.all((p: any) => {
-            return p instanceof go.Group || (!p.isTopLevel && p.containingGroup.isSelected);
-          })
-        ) {
-          e.diagram.currentTool.doCancel();
-        }
-      }
-    };
-
-    myDiagram.model = new go.GraphLinksModel([
-      { key: 'Panel A', isGroup: true, pos: '0 0', size: '250 350' },
-      { key: 'Panel B', isGroup: true, pos: '300 0', size: '250 350' },
-      { key: 'Panel C', isGroup: true, pos: '0 400', size: '550 250' }
-    ]);
-    
-    setTimeout(() => {
-      setDiagramReady(true);
-    }, 500);
+      myDiagram.model = new go.GraphLinksModel([
+        { key: 'Panel A', isGroup: true, pos: '0 0', size: '250 350' },
+        { key: 'Panel B', isGroup: true, pos: '300 0', size: '250 350' },
+        { key: 'Panel C', isGroup: true, pos: '0 400', size: '550 250' }
+      ]);
+      
+      setTimeout(() => {
+        setDiagramReady(true);
+      }, 500);
+    }
   };
 
   const getDefaultSizeForType = (type: string): string => {
