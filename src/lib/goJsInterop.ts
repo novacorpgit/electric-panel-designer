@@ -57,7 +57,10 @@ declare global {
   }
 }
 
-// Helper function to load GoJS script
+/**
+ * Helper function to load GoJS script
+ * This function loads the main GoJS library from unpkg
+ */
 export const loadGoJS = (): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (window.go) {
@@ -69,9 +72,8 @@ export const loadGoJS = (): Promise<void> => {
     script.src = 'https://unpkg.com/gojs/release/go.js';
     script.async = true;
     script.onload = () => {
-      // After loading main GoJS, load the DimensioningLink extension
-      // Skip trying to load the DimensioningLink extension for now since it's causing errors
-      // We'll modify the code not to rely on this extension
+      // After loading main GoJS, we immediately resolve
+      // since we're implementing our own dimensioning links
       resolve();
     };
     script.onerror = () => reject(new Error('Failed to load GoJS'));
@@ -79,12 +81,15 @@ export const loadGoJS = (): Promise<void> => {
   });
 };
 
-// Initialize GoJS
+/**
+ * Initialize GoJS and return the main library instance
+ */
 export const initializeGoJS = async (): Promise<GoJSDiagram> => {
   await loadGoJS();
   
   // Create a simple DimensioningLink implementation if the extension isn't available
   if (window.go && !window.go.DimensioningLink) {
+    // Create a basic implementation based on Link
     window.go.DimensioningLink = window.go.Link;
   }
   

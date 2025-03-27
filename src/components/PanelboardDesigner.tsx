@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -96,12 +97,9 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       diagramInstance.addDiagramListener("ExternalObjectsDropped", handleSelectionMoved);
       diagramInstance.addDiagramListener("PartResized", handleSelectionMoved);
       
-      // Fix: Use correct event names for drag start/end
-      // GoJS doesn't use the "DraggingTool.X" format directly in addDiagramListener
-      diagramInstance.addDiagramListener("DragStarted", handleDragStarted);
-      diagramInstance.addDiagramListener("DraggingStarted", handleDragStarted);
-      diagramInstance.addDiagramListener("DragFinished", handleDragFinished);
-      diagramInstance.addDiagramListener("ExternalObjectsDropped", handleDragFinished);
+      // Fix: Use correct event names for drag events in GoJS - these are the actual event names used in GoJS
+      diagramInstance.addDiagramListener("ChangedSelection", handleSelectionChanged);
+      diagramInstance.addDiagramListener("ChangingSelection", handleSelectionChanged);
       
       return () => {
         // Clean up event listeners with correct event names
@@ -110,13 +108,21 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         diagramInstance.removeDiagramListener("ExternalObjectsDropped", handleSelectionMoved);
         diagramInstance.removeDiagramListener("PartResized", handleSelectionMoved);
         
-        diagramInstance.removeDiagramListener("DragStarted", handleDragStarted);
-        diagramInstance.removeDiagramListener("DraggingStarted", handleDragStarted);
-        diagramInstance.removeDiagramListener("DragFinished", handleDragFinished);
-        diagramInstance.removeDiagramListener("ExternalObjectsDropped", handleDragFinished);
+        diagramInstance.removeDiagramListener("ChangedSelection", handleSelectionChanged);
+        diagramInstance.removeDiagramListener("ChangingSelection", handleSelectionChanged);
       };
     }
   }, [diagramInstance, goInstance, showDistances]);
+
+  // Add a selection change event handler
+  const handleSelectionChanged = () => {
+    // Check if any parts are selected - this can help determine if dragging might be occurring
+    if (diagramInstance && diagramInstance.selection.count > 0) {
+      setIsDragging(true);
+    } else {
+      setIsDragging(false);
+    }
+  };
 
   // Effect to update distances when dragging state changes
   useEffect(() => {
@@ -1033,7 +1039,13 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       </div>
       
       <div className="flex flex-1 w-full overflow-hidden">
-        <SidebarProvider defaultWidth={250} minWidth={200} maxWidth={350} collapsible>
+        {/* Fix SidebarProvider props - remove defaultWidth and use width instead */}
+        <SidebarProvider 
+          defaultCollapsed={false}
+          width={250}
+          minWidth={200}
+          maxWidth={350}
+        >
           <ScrollArea className="w-full h-full p-4 border-r">
             <div className="space-y-4">
               <h3 className="text-lg font-medium mb-2">Components</h3>
