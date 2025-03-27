@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -208,12 +209,12 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         })
           .add(
             new go.Shape('LineH', { 
-              stroke: 'rgba(0, 0, 0, 0.2)',
-              strokeWidth: 0.8
+              stroke: 'rgba(173, 216, 230, 0.4)', // Light blue grid lines
+              strokeWidth: 0.5
             }),
             new go.Shape('LineV', { 
-              stroke: 'rgba(0, 0, 0, 0.2)',
-              strokeWidth: 0.8
+              stroke: 'rgba(173, 216, 230, 0.4)', // Light blue grid lines
+              strokeWidth: 0.5
             })
           ),
         'draggingTool.isGridSnapEnabled': true,
@@ -222,7 +223,8 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         'animationManager.isEnabled': true,
         'undoManager.isEnabled': true,
         'initialContentAlignment': go.Spot.Center,
-        "allowDrop": true
+        "allowDrop": true,
+        "background": "#F8FAFC" // Light background color
       });
       
       setDiagramInstance(myDiagram);
@@ -281,9 +283,30 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       };
 
       myDiagram.model = new go.GraphLinksModel([
-        { key: 'Panel A', isGroup: true, pos: '0 0', size: '250 350' },
-        { key: 'Panel B', isGroup: true, pos: '300 0', size: '250 350' },
-        { key: 'Panel C', isGroup: true, pos: '0 400', size: '550 250' }
+        { 
+          key: 'Panel A', 
+          isGroup: true, 
+          pos: '0 0', 
+          size: '350 350',
+          background: 'rgba(173, 216, 230, 0.15)', // Light blue background
+          stroke: '#3498db' // Blue border
+        },
+        { 
+          key: 'Panel B', 
+          isGroup: true, 
+          pos: '400 0', 
+          size: '250 350',
+          background: 'rgba(173, 216, 230, 0.15)', // Light blue background
+          stroke: '#3498db' // Blue border
+        },
+        { 
+          key: 'Panel C', 
+          isGroup: true, 
+          pos: '0 400', 
+          size: '650 250',
+          background: 'rgba(173, 216, 230, 0.15)', // Light blue background
+          stroke: '#3498db' // Blue border
+        }
       ]);
       
       setTimeout(() => {

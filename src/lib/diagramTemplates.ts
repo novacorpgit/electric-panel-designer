@@ -26,8 +26,8 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
             .add(
               new go.Shape('Rectangle', {
                 name: 'SHAPE',
-                fill: 'white',
-                stroke: '#34495e',
+                fill: '#333333',
+                stroke: '#222222',
                 strokeWidth: 1.5,
                 minSize: CellSize,
                 desiredSize: CellSize,
@@ -91,13 +91,14 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
                 height: 40
               })
             )
+            // Red indicator at bottom of lever
             .add(
               new go.Shape('Rectangle', {
-                fill: 'red',
+                fill: '#FF0000',
                 stroke: null,
                 width: 15,
                 height: 5,
-                alignment: new go.Spot(0.5, 0.5)
+                alignment: new go.Spot(0.5, 0.7)
               })
             ),
           new go.TextBlock({
@@ -151,17 +152,17 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
                 alignment: new go.Spot(0.7, 0.1)
               })
             )
-            // Indicator light
+            // Red indicator light
             .add(
               new go.Shape('Circle', {
-                fill: 'red',
+                fill: '#FF0000',
                 stroke: null,
                 width: 8,
                 height: 8,
                 alignment: new go.Spot(0.7, 0.25)
               })
             )
-            // Control sliders
+            // Control sliders - gray
             .add(
               new go.Shape('Rectangle', {
                 fill: '#cccccc',
@@ -250,7 +251,7 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
   
   templates.set("ACB", acbTemplate);
   
-  // MCB template - Gray with white switch
+  // MCB template - Dark gray with white switch and red indicator
   const mcbTemplate = new go.Node('Auto')
     .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
     .add(
@@ -260,7 +261,7 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
             .add(
               new go.Shape('Rectangle', {
                 name: 'SHAPE',
-                fill: '#444444',
+                fill: '#333333',
                 stroke: '#222222',
                 strokeWidth: 1,
                 minSize: new go.Size(60, 100),
@@ -284,7 +285,7 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
             )
             .add(
               new go.Shape('Rectangle', {
-                fill: 'red',
+                fill: '#FF0000',
                 stroke: null,
                 width: 15,
                 height: 5,
@@ -301,7 +302,7 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
   
   templates.set("MCB", mcbTemplate);
   
-  // Busbar template - copper colored
+  // Busbar template - copper/brown colored
   const busbarTemplate = new go.Node('Auto')
     .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
     .add(
@@ -311,8 +312,8 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
             .add(
               new go.Shape('Rectangle', {
                 name: 'SHAPE',
-                fill: '#b87333', // Copper color
-                stroke: '#8B4513',
+                fill: '#8B4513', // Darker copper/brown color
+                stroke: '#5E2605',
                 strokeWidth: 1,
                 minSize: new go.Size(150, 30),
                 desiredSize: new go.Size(150, 30),
@@ -333,7 +334,7 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
   
   templates.set("Busbar", busbarTemplate);
   
-  // Transformer template - Gray box
+  // Transformer template - Dark gray box
   const transformerTemplate = new go.Node('Auto')
     .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
     .add(
@@ -343,7 +344,7 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
             .add(
               new go.Shape('Rectangle', {
                 name: 'SHAPE',
-                fill: '#555555',
+                fill: '#444444',
                 stroke: '#333333',
                 strokeWidth: 1,
                 minSize: new go.Size(100, 120),
@@ -369,7 +370,7 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
 };
 
 export const createGroupTemplate = (go: GoJSDiagram, CellSize: any, highlightGroup: (grp: any, show: boolean) => boolean) => {
-  const groupFill = 'rgba(41, 128, 185, 0.15)';
+  const groupFill = 'rgba(173, 216, 230, 0.15)'; // Light blue background
   const groupStroke = '#3498db';
   const dropFill = 'rgba(46, 204, 113, 0.3)';
   const dropStroke = '#2ecc71';
