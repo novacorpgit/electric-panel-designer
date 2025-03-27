@@ -60,19 +60,19 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
 
   const setupDiagram = (go: GoJSDiagram) => {
     // Define cell size (smaller grid size)
-    const CellSize = new go.Size(25, 25);
+    const CellSize = new go.Size(20, 20); // Reduced from 25,25 to make grid smaller
     
     // Create the main diagram
     const myDiagram = new go.Diagram(diagramRef.current, {
       grid: new go.Panel('Grid', { gridCellSize: CellSize })
         .add(
-          new go.Shape('LineH', { stroke: 'rgba(169, 169, 169, 0.3)' }),
-          new go.Shape('LineV', { stroke: 'rgba(169, 169, 169, 0.3)' })
+          new go.Shape('LineH', { stroke: 'rgba(169, 169, 169, 0.2)' }), // Lighter grid lines
+          new go.Shape('LineV', { stroke: 'rgba(169, 169, 169, 0.2)' })  // Lighter grid lines
         ),
       'draggingTool.isGridSnapEnabled': true,
       'draggingTool.gridSnapCellSpot': go.Spot.Center,
       'resizingTool.isGridSnapEnabled': true,
-      'animationManager.isEnabled': false,
+      'animationManager.isEnabled': true, // Enable animations for better UX
       'undoManager.isEnabled': true
     });
     
@@ -210,87 +210,120 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       { key: 'Panel C', isGroup: true, pos: '0 350', size: '450 200' }
     ]);
 
-    // Circuit Breaker Palette
-    const circuitBreakerPalette = new go.Palette(circuitBreakersRef.current, {
-      nodeTemplate: myDiagram.nodeTemplate,
-      groupTemplate: myDiagram.groupTemplate,
-      maxSelectionCount: 1,
-      allowHorizontalScroll: false,
-      allowVerticalScroll: false,
-      layout: new go.GridLayout({
-        wrappingColumn: 2,
-        cellSize: new go.Size(80, 80),
-        spacing: new go.Size(5, 5)
-      })
-    });
+    // Create a common node template for components
+    const createPalette = (divRef: React.RefObject<HTMLDivElement>, model: any) => {
+      const palette = new go.Palette(divRef.current, {
+        nodeTemplate: myDiagram.nodeTemplate,
+        groupTemplate: myDiagram.groupTemplate,
+        maxSelectionCount: 1,
+        allowHorizontalScroll: false,
+        allowVerticalScroll: false,
+        layout: new go.GridLayout({
+          wrappingColumn: 2,
+          cellSize: new go.Size(90, 90),
+          spacing: new go.Size(10, 10)
+        })
+      });
+      
+      palette.model = model;
+      return palette;
+    };
 
-    circuitBreakerPalette.model = new go.GraphLinksModel([
+    // Circuit Breaker Palette with NSX250 added
+    const circuitBreakerModel = new go.GraphLinksModel([
       { key: 'ACB 1', label: 'ACB 1', color: '#F97316', size: '50 80' },
       { key: 'ACB 2', label: 'ACB 2', color: '#F97316', size: '50 80' },
       { key: 'MCB 1P', label: 'MCB 1P', color: '#F97316', size: '50 50' },
-      { key: 'MCB 3P', label: 'MCB 3P', color: '#F97316', size: '50 50' }
+      { key: 'MCB 3P', label: 'MCB 3P', color: '#F97316', size: '50 50' },
+      // Add NSX250 breaker
+      { 
+        key: 'NSX250', 
+        label: 'NSX250', 
+        color: '#404040', 
+        size: '70 90',
+        image: '/lovable-uploads/03c3bec1-ce4c-4de6-991a-b00dc5f3000f.png'
+      }
     ]);
+    
+    // Create specialized node template for the circuit breaker palette to handle images
+    const circuitBreakerPalette = new go.Palette(circuitBreakersRef.current, {
+      nodeTemplate: new go.Node("Auto", {
+          resizable: true,
+          resizeObjectName: 'SHAPE',
+          locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
+        })
+          .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
+          .add(
+            new go.Panel("Vertical").add(
+              new go.Panel("Spot").add(
+                new go.Shape('Rectangle', {
+                  name: 'SHAPE',
+                  fill: 'white',
+                  stroke: '#34495e',
+                  strokeWidth: 1.5,
+                  minSize: CellSize,
+                  desiredSize: new go.Size(70, 90),
+                  shadowVisible: true,
+                  shadowOffset: new go.Point(2, 2),
+                  shadowBlur: 3,
+                  shadowColor: 'rgba(0, 0, 0, 0.2)'
+                })
+                  .bind('fill', 'color')
+                  .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify),
+                new go.Picture()
+                  .bind("source", "image")
+                  .bind("desiredSize", "size", go.Size.parse, go.Size.stringify)
+              ),
+              new go.TextBlock({
+                margin: new go.Margin(3, 0, 0, 0),
+                font: 'bold 11px Inter, sans-serif',
+                stroke: '#333'
+              }).bind('text', 'label')
+            )
+          ),
+      groupTemplate: myDiagram.groupTemplate,
+      maxSelectionCount: 1,
+      allowHorizontalScroll: false,
+      allowVerticalScroll: false,
+      layout: new go.GridLayout({
+        wrappingColumn: 2,
+        cellSize: new go.Size(90, 105),
+        spacing: new go.Size(10, 10)
+      })
+    });
+    
+    circuitBreakerPalette.model = circuitBreakerModel;
 
     // Transformer Palette
-    const transformerPalette = new go.Palette(transformersRef.current, {
-      nodeTemplate: myDiagram.nodeTemplate,
-      groupTemplate: myDiagram.groupTemplate,
-      maxSelectionCount: 1,
-      allowHorizontalScroll: false,
-      allowVerticalScroll: false,
-      layout: new go.GridLayout({
-        wrappingColumn: 2,
-        cellSize: new go.Size(80, 80),
-        spacing: new go.Size(5, 5)
-      })
-    });
-
-    transformerPalette.model = new go.GraphLinksModel([
-      { key: 'TX1', label: 'TX 100kVA', color: '#8B5CF6', size: '100 100' },
-      { key: 'TX2', label: 'TX 250kVA', color: '#8B5CF6', size: '120 120' },
-      { key: 'TX3', label: 'TX 500kVA', color: '#8B5CF6', size: '150 150' }
-    ]);
+    const transformerPalette = createPalette(
+      transformersRef,
+      new go.GraphLinksModel([
+        { key: 'TX1', label: 'TX 100kVA', color: '#8B5CF6', size: '100 100' },
+        { key: 'TX2', label: 'TX 250kVA', color: '#8B5CF6', size: '120 120' },
+        { key: 'TX3', label: 'TX 500kVA', color: '#8B5CF6', size: '150 150' }
+      ])
+    );
 
     // Busbar Palette
-    const busbarPalette = new go.Palette(busbarsRef.current, {
-      nodeTemplate: myDiagram.nodeTemplate,
-      groupTemplate: myDiagram.groupTemplate,
-      maxSelectionCount: 1,
-      allowHorizontalScroll: false,
-      allowVerticalScroll: false,
-      layout: new go.GridLayout({
-        wrappingColumn: 2,
-        cellSize: new go.Size(80, 80),
-        spacing: new go.Size(5, 5)
-      })
-    });
-
-    busbarPalette.model = new go.GraphLinksModel([
-      { key: 'BB1', label: 'Bus Bar 100A', color: '#0EA5E9', size: '150 30' },
-      { key: 'BB2', label: 'Bus Bar 250A', color: '#0EA5E9', size: '200 30' },
-      { key: 'BB3', label: 'Bus Bar 400A', color: '#0EA5E9', size: '250 30' },
-      { key: 'BB4', label: 'Bus Bar 630A', color: '#0EA5E9', size: '300 30' }
-    ]);
+    const busbarPalette = createPalette(
+      busbarsRef,
+      new go.GraphLinksModel([
+        { key: 'BB1', label: 'Bus Bar 100A', color: '#0EA5E9', size: '150 30' },
+        { key: 'BB2', label: 'Bus Bar 250A', color: '#0EA5E9', size: '200 30' },
+        { key: 'BB3', label: 'Bus Bar 400A', color: '#0EA5E9', size: '250 30' },
+        { key: 'BB4', label: 'Bus Bar 630A', color: '#0EA5E9', size: '300 30' }
+      ])
+    );
 
     // Switch Palette
-    const switchPalette = new go.Palette(switchesRef.current, {
-      nodeTemplate: myDiagram.nodeTemplate,
-      groupTemplate: myDiagram.groupTemplate,
-      maxSelectionCount: 1,
-      allowHorizontalScroll: false,
-      allowVerticalScroll: false,
-      layout: new go.GridLayout({
-        wrappingColumn: 2,
-        cellSize: new go.Size(80, 80),
-        spacing: new go.Size(5, 5)
-      })
-    });
-
-    switchPalette.model = new go.GraphLinksModel([
-      { key: 'DS1', label: 'Disconnector', color: '#D946EF', size: '70 60' },
-      { key: 'DS2', label: 'Isolator', color: '#D946EF', size: '70 60' },
-      { key: 'DS3', label: 'Changeover', color: '#D946EF', size: '100 70' }
-    ]);
+    const switchPalette = createPalette(
+      switchesRef,
+      new go.GraphLinksModel([
+        { key: 'DS1', label: 'Disconnector', color: '#D946EF', size: '70 60' },
+        { key: 'DS2', label: 'Isolator', color: '#D946EF', size: '70 60' },
+        { key: 'DS3', label: 'Changeover', color: '#D946EF', size: '100 70' }
+      ])
+    );
   };
 
   const handleSaveModel = () => {

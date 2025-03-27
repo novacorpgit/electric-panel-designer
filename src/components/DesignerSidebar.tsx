@@ -10,7 +10,7 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent,
 } from '@/components/ui/sidebar';
-import { Database, Cable, Plug, ToggleLeft, Server } from 'lucide-react';
+import { Database, Cable, Plug, ToggleLeft, Server, CircuitBoard } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface DesignerSidebarProps {
@@ -27,7 +27,7 @@ const DesignerSidebar: React.FC<DesignerSidebarProps> = ({ paletteRefs }) => {
     <Sidebar variant="sidebar" className="border-r min-h-screen bg-slate-50 shadow-md">
       <SidebarHeader className="flex flex-col gap-2 p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
         <h2 className="text-xl font-bold flex items-center gap-2 text-blue-700">
-          <Database className="w-5 h-5" />
+          <CircuitBoard className="w-5 h-5" />
           <span>Components</span>
         </h2>
         <p className="text-sm text-blue-600/70">

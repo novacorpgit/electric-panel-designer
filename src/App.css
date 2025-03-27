@@ -44,15 +44,16 @@ body {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-  gap: 2px;
-  padding: 4px;
+  gap: 8px;
+  padding: 8px;
   transition: all 0.2s ease;
 }
 
 .gojs-palette:hover {
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
 }
 
 /* Animation for diagram elements */
@@ -74,4 +75,16 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Component hover effects */
+.gojs-palette .go-node:hover {
+  cursor: grab;
+  filter: brightness(1.05);
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+}
+
+.gojs-palette .go-node:active {
+  cursor: grabbing;
 }
