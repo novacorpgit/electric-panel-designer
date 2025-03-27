@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -77,7 +76,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
 
   const setupDiagram = (go: GoJSDiagram) => {
     // Define cell size (even smaller grid size for more precision)
-    const CellSize = new go.Size(12, 12);
+    const CellSize = new go.Size(10, 10);
     
     // Create the main diagram with context menu enabled
     const myDiagram = new go.Diagram(diagramRef.current, {
@@ -133,12 +132,11 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                   .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
               )
               .add(
-                new go.Shape("Rectangle", {
+                new go.Picture({
                   name: "IMAGE",
-                  visible: false, // Only visible if there's an image
-                  fill: "transparent",
-                  stroke: null,
-                  desiredSize: new go.Size(60, 80)
+                  desiredSize: new go.Size(60, 80),
+                  imageStretch: go.GraphObject.Uniform,
+                  alignment: go.Spot.Center
                 })
                   .bind("source", "image")
                   .bind("visible", "image", (img) => !!img)
@@ -309,7 +307,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     if (diagramInstance && goInstance) {
       try {
         // Create a new node data
-        const nodeData = { 
+        const nodeData: any = { 
           key: `${key}_${Math.floor(Math.random() * 1000)}`, 
           label, 
           color, 
@@ -319,7 +317,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
 
         // Add image if provided
         if (image) {
-          nodeData['image'] = image;
+          nodeData.image = image;
         }
 
         // Add the node to the diagram

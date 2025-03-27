@@ -19,7 +19,7 @@ export interface GoJSDiagram {
   Palette: any;
   GridLayout: any;
   Margin: any;
-  Picture: any; // Add Picture for image support
+  Picture: any; // Enhanced Picture support
 }
 
 // Global declaration for GoJS
@@ -40,7 +40,7 @@ declare global {
       Palette: any;
       GridLayout: any;
       Margin: any;
-      Picture: any; // Add Picture to window.go interface
+      Picture: any; // Enhanced Picture support
     };
   }
 }

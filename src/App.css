@@ -102,3 +102,15 @@ body {
     transform: scale(1); 
   }
 }
+
+/* Enhanced image display for component nodes */
+.go-picture {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Ensure the NSX250 image is properly displayed */
+[data-image-component="NSX250"] {
+  background-color: transparent !important;
+}
