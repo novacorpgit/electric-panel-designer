@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -231,8 +230,223 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
           )
       );
 
-    // Add the NSX250 node template to the diagram
+    // Special template for busbars with brown color
+    const busbarTemplate = new go.Node('Auto', {
+      resizable: true,
+      resizeObjectName: 'SHAPE',
+      locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
+      mouseDragEnter: (e: any, node: any) => {
+        e.handled = true;
+        node.findObject('SHAPE').fill = 'red';
+        e.diagram.currentCursor = 'not-allowed';
+        highlightGroup(node.containingGroup, false);
+      },
+      mouseDragLeave: (e: any, node: any) => node.updateTargetBindings(),
+      mouseDrop: (e: any, node: any) => node.diagram.currentTool.doCancel()
+    })
+      .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
+      .add(
+        new go.Panel("Vertical")
+          .add(
+            new go.Panel("Spot")
+              .add(
+                new go.Shape('Rectangle', {
+                  name: 'SHAPE',
+                  fill: '#8B4513', // Brown color for busbar
+                  stroke: '#5D4037', // Darker brown for outline
+                  strokeWidth: 1.5,
+                  minSize: new go.Size(150, 30),
+                  desiredSize: new go.Size(150, 30),
+                  shadowVisible: true,
+                  shadowOffset: new go.Point(2, 2),
+                  shadowBlur: 3,
+                  shadowColor: 'rgba(0, 0, 0, 0.3)'
+                })
+                  .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
+              )
+              // Add metallic connectors at both ends
+              .add(
+                new go.Shape('Rectangle', {
+                  fill: '#999999', // Silver/metallic color
+                  stroke: '#666666',
+                  strokeWidth: 1,
+                  width: 10,
+                  height: 20,
+                  alignment: new go.Spot(0, 0.5, 5, 0)
+                })
+              )
+              .add(
+                new go.Shape('Rectangle', {
+                  fill: '#999999', // Silver/metallic color
+                  stroke: '#666666',
+                  strokeWidth: 1,
+                  width: 10,
+                  height: 20,
+                  alignment: new go.Spot(1, 0.5, -5, 0)
+                })
+              ),
+            new go.TextBlock({
+              margin: new go.Margin(3, 0, 0, 0),
+              font: 'bold 11px Inter, sans-serif',
+              stroke: '#333'
+            }).bind('text', 'label')
+          )
+      );
+
+    // Circuit breaker template
+    const circuitBreakerTemplate = new go.Node('Auto', {
+      resizable: true,
+      resizeObjectName: 'SHAPE',
+      locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
+      mouseDragEnter: (e: any, node: any) => {
+        e.handled = true;
+        node.findObject('SHAPE').fill = 'red';
+        e.diagram.currentCursor = 'not-allowed';
+        highlightGroup(node.containingGroup, false);
+      },
+      mouseDragLeave: (e: any, node: any) => node.updateTargetBindings(),
+      mouseDrop: (e: any, node: any) => node.diagram.currentTool.doCancel()
+    })
+      .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
+      .add(
+        new go.Panel("Vertical")
+          .add(
+            new go.Panel("Spot")
+              .add(
+                new go.Shape('Rectangle', {
+                  name: 'SHAPE',
+                  fill: '#444444', // Dark gray for circuit breaker
+                  stroke: '#222222',
+                  strokeWidth: 1.5,
+                  minSize: new go.Size(50, 80),
+                  desiredSize: new go.Size(50, 80),
+                  shadowVisible: true,
+                  shadowOffset: new go.Point(2, 2),
+                  shadowBlur: 3,
+                  shadowColor: 'rgba(0, 0, 0, 0.3)'
+                })
+                  .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
+              )
+              // Add switch lever
+              .add(
+                new go.Panel("Vertical")
+                  .add(
+                    new go.Shape("Rectangle", {
+                      width: 10,
+                      height: 25,
+                      fill: "#DDDDDD",
+                      stroke: "#333333",
+                      strokeWidth: 1,
+                      alignment: go.Spot.Center
+                    })
+                  )
+                  .add(
+                    new go.Shape("Rectangle", {
+                      width: 6,
+                      height: 4,
+                      fill: "red",
+                      stroke: null,
+                      alignment: new go.Spot(0.5, 0, 0, -2)
+                    })
+                  )
+              ),
+            new go.TextBlock({
+              margin: new go.Margin(3, 0, 0, 0),
+              font: 'bold 11px Inter, sans-serif',
+              stroke: '#FFF' // White text for better contrast
+            }).bind('text', 'label')
+          )
+      );
+
+    // Transformer template
+    const transformerTemplate = new go.Node('Auto', {
+      resizable: true,
+      resizeObjectName: 'SHAPE',
+      locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
+      mouseDragEnter: (e: any, node: any) => {
+        e.handled = true;
+        node.findObject('SHAPE').fill = 'red';
+        e.diagram.currentCursor = 'not-allowed';
+        highlightGroup(node.containingGroup, false);
+      },
+      mouseDragLeave: (e: any, node: any) => node.updateTargetBindings(),
+      mouseDrop: (e: any, node: any) => node.diagram.currentTool.doCancel()
+    })
+      .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
+      .add(
+        new go.Panel("Vertical")
+          .add(
+            new go.Panel("Spot")
+              .add(
+                new go.Shape('Rectangle', {
+                  name: 'SHAPE',
+                  fill: '#666666', // Medium gray for transformer
+                  stroke: '#333333',
+                  strokeWidth: 1.5,
+                  minSize: new go.Size(100, 100),
+                  desiredSize: new go.Size(100, 100),
+                  shadowVisible: true,
+                  shadowOffset: new go.Point(2, 2),
+                  shadowBlur: 3,
+                  shadowColor: 'rgba(0, 0, 0, 0.3)'
+                })
+                  .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
+              )
+              // Add cooling fins
+              .add(
+                new go.Panel("Horizontal", {
+                  alignment: new go.Spot(0.5, 1, 0, -5)
+                })
+                  .add(
+                    new go.Shape("Rectangle", {
+                      width: 5,
+                      height: 15,
+                      fill: "#999999",
+                      stroke: "#666666",
+                      margin: new go.Margin(0, 3, 0, 3)
+                    })
+                  )
+                  .add(
+                    new go.Shape("Rectangle", {
+                      width: 5,
+                      height: 15,
+                      fill: "#999999",
+                      stroke: "#666666",
+                      margin: new go.Margin(0, 3, 0, 3)
+                    })
+                  )
+                  .add(
+                    new go.Shape("Rectangle", {
+                      width: 5,
+                      height: 15,
+                      fill: "#999999",
+                      stroke: "#666666",
+                      margin: new go.Margin(0, 3, 0, 3)
+                    })
+                  )
+                  .add(
+                    new go.Shape("Rectangle", {
+                      width: 5,
+                      height: 15,
+                      fill: "#999999",
+                      stroke: "#666666",
+                      margin: new go.Margin(0, 3, 0, 3)
+                    })
+                  )
+              ),
+            new go.TextBlock({
+              margin: new go.Margin(3, 0, 0, 0),
+              font: 'bold 11px Inter, sans-serif',
+              stroke: '#FFF' // White text for better contrast
+            }).bind('text', 'label')
+          )
+      );
+
+    // Add the node templates to the diagram
     myDiagram.nodeTemplateMap.add("NSX250", nsx250Template);
+    myDiagram.nodeTemplateMap.add("Busbar", busbarTemplate);
+    myDiagram.nodeTemplateMap.add("CircuitBreaker", circuitBreakerTemplate);
+    myDiagram.nodeTemplateMap.add("Transformer", transformerTemplate);
 
     function highlightGroup(grp: any, show: boolean) {
       if (!grp) return false;
@@ -246,6 +460,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     const dropFill = 'rgba(46, 204, 113, 0.2)';
     const dropStroke = '#2ecc71';
 
+    // Group template definition
     myDiagram.groupTemplate = new go.Group({
       layerName: 'Background',
       resizable: true,
@@ -392,9 +607,18 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
           pos: '100 100' 
         };
 
-        // Special handling for NSX250
+        // Special handling for different component types
         if (key === 'NSX250') {
           nodeData.category = 'NSX250'; // Use the special template
+        } else if (key.startsWith('BB')) {
+          nodeData.category = 'Busbar'; // Use busbar template
+          nodeData.color = '#8B4513'; // Brown color for busbars
+        } else if (key.startsWith('ACB') || key.startsWith('MCB')) {
+          nodeData.category = 'CircuitBreaker'; // Use circuit breaker template
+          nodeData.color = '#444444'; // Dark gray for circuit breakers
+        } else if (key.startsWith('TX')) {
+          nodeData.category = 'Transformer'; // Use transformer template
+          nodeData.color = '#666666'; // Medium gray for transformers
         } else if (image) {
           nodeData.image = image;
         }
@@ -484,10 +708,10 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                   <MenubarSeparator />
                   <MenubarLabel>Circuit Breakers</MenubarLabel>
                   <MenubarSeparator />
-                  <MenubarItem onClick={() => addComponent('ACB1', 'ACB 1', '#F97316', '50 80')}>ACB 1</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('ACB2', 'ACB 2', '#F97316', '50 80')}>ACB 2</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('MCB1P', 'MCB 1P', '#F97316', '50 50')}>MCB 1P</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('MCB3P', 'MCB 3P', '#F97316', '50 50')}>MCB 3P</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('ACB1', 'ACB 1', '#444444', '50 80')}>ACB 1</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('ACB2', 'ACB 2', '#444444', '50 80')}>ACB 2</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('MCB1P', 'MCB 1P', '#444444', '50 50')}>MCB 1P</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('MCB3P', 'MCB 3P', '#444444', '50 50')}>MCB 3P</MenubarItem>
                   <MenubarItem onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90')}>
                     NSX250
                   </MenubarItem>
@@ -495,17 +719,17 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                   <MenubarSeparator />
                   <MenubarLabel>Transformers</MenubarLabel>
                   <MenubarSeparator />
-                  <MenubarItem onClick={() => addComponent('TX1', 'TX 100kVA', '#8B5CF6', '100 100')}>TX 100kVA</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('TX2', 'TX 250kVA', '#8B5CF6', '120 120')}>TX 250kVA</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('TX3', 'TX 500kVA', '#8B5CF6', '150 150')}>TX 500kVA</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('TX1', 'TX 100kVA', '#666666', '100 100')}>TX 100kVA</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('TX2', 'TX 250kVA', '#666666', '120 120')}>TX 250kVA</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('TX3', 'TX 500kVA', '#666666', '150 150')}>TX 500kVA</MenubarItem>
                   
                   <MenubarSeparator />
                   <MenubarLabel>Busbars</MenubarLabel>
                   <MenubarSeparator />
-                  <MenubarItem onClick={() => addComponent('BB1', 'Bus Bar 100A', '#0EA5E9', '150 30')}>Bus Bar 100A</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('BB2', 'Bus Bar 250A', '#0EA5E9', '200 30')}>Bus Bar 250A</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('BB3', 'Bus Bar 400A', '#0EA5E9', '250 30')}>Bus Bar 400A</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('BB4', 'Bus Bar 630A', '#0EA5E9', '300 30')}>Bus Bar 630A</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('BB1', 'Bus Bar 100A', '#8B4513', '150 30')}>Bus Bar 100A</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('BB2', 'Bus Bar 250A', '#8B4513', '200 30')}>Bus Bar 250A</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('BB3', 'Bus Bar 400A', '#8B4513', '250 30')}>Bus Bar 400A</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('BB4', 'Bus Bar 630A', '#8B4513', '300 30')}>Bus Bar 630A</MenubarItem>
                   
                   <MenubarSeparator />
                   <MenubarLabel>Switches</MenubarLabel>
@@ -545,7 +769,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                         variant="outline" 
                         size="sm" 
                         className="h-auto py-2 flex flex-col items-center justify-center border-orange-200 bg-white hover:bg-orange-100"
-                        onClick={() => addComponent('ACB1', 'ACB 1', '#F97316', '50 80')}
+                        onClick={() => addComponent('ACB1', 'ACB 1', '#444444', '50 80')}
                       >
                         <span className="text-xs">ACB 1</span>
                       </Button>
@@ -553,7 +777,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                         variant="outline" 
                         size="sm" 
                         className="h-auto py-2 flex flex-col items-center justify-center border-orange-200 bg-white hover:bg-orange-100"
-                        onClick={() => addComponent('MCB1P', 'MCB 1P', '#F97316', '50 50')}
+                        onClick={() => addComponent('MCB1P', 'MCB 1P', '#444444', '50 50')}
                       >
                         <span className="text-xs">MCB 1P</span>
                       </Button>
@@ -578,7 +802,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                         variant="outline" 
                         size="sm" 
                         className="h-auto py-2 flex flex-col items-center justify-center border-purple-200 bg-white hover:bg-purple-100"
-                        onClick={() => addComponent('TX1', 'TX 100kVA', '#8B5CF6', '100 100')}
+                        onClick={() => addComponent('TX1', 'TX 100kVA', '#666666', '100 100')}
                       >
                         <span className="text-xs">100kVA</span>
                       </Button>
@@ -586,7 +810,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                         variant="outline" 
                         size="sm" 
                         className="h-auto py-2 flex flex-col items-center justify-center border-purple-200 bg-white hover:bg-purple-100"
-                        onClick={() => addComponent('TX2', 'TX 250kVA', '#8B5CF6', '120 120')}
+                        onClick={() => addComponent('TX2', 'TX 250kVA', '#666666', '120 120')}
                       >
                         <span className="text-xs">250kVA</span>
                       </Button>
@@ -603,7 +827,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                         variant="outline" 
                         size="sm" 
                         className="h-auto py-2 flex flex-col items-center justify-center border-blue-200 bg-white hover:bg-blue-100"
-                        onClick={() => addComponent('BB1', 'Bus Bar 100A', '#0EA5E9', '150 30')}
+                        onClick={() => addComponent('BB1', 'Bus Bar 100A', '#8B4513', '150 30')}
                       >
                         <span className="text-xs">100A</span>
                       </Button>
@@ -611,7 +835,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                         variant="outline" 
                         size="sm" 
                         className="h-auto py-2 flex flex-col items-center justify-center border-blue-200 bg-white hover:bg-blue-100"
-                        onClick={() => addComponent('BB3', 'Bus Bar 400A', '#0EA5E9', '250 30')}
+                        onClick={() => addComponent('BB3', 'Bus Bar 400A', '#8B4513', '250 30')}
                       >
                         <span className="text-xs">400A</span>
                       </Button>
@@ -660,16 +884,16 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                       New Panel Enclosure
                     </ContextMenuItem>
                     <ContextMenuSeparator />
-                    <ContextMenuItem onClick={() => addComponent('ACB1', 'ACB 1', '#F97316', '50 80')}>
+                    <ContextMenuItem onClick={() => addComponent('ACB1', 'ACB 1', '#444444', '50 80')}>
                       ACB Circuit Breaker
                     </ContextMenuItem>
                     <ContextMenuItem onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90')}>
                       NSX250 Breaker
                     </ContextMenuItem>
-                    <ContextMenuItem onClick={() => addComponent('TX1', 'TX 100kVA', '#8B5CF6', '100 100')}>
+                    <ContextMenuItem onClick={() => addComponent('TX1', 'TX 100kVA', '#666666', '100 100')}>
                       Transformer 100kVA
                     </ContextMenuItem>
-                    <ContextMenuItem onClick={() => addComponent('BB1', 'Bus Bar 100A', '#0EA5E9', '150 30')}>
+                    <ContextMenuItem onClick={() => addComponent('BB1', 'Bus Bar 100A', '#8B4513', '150 30')}>
                       Busbar 100A
                     </ContextMenuItem>
                     <ContextMenuItem onClick={() => addComponent('DS1', 'Disconnector', '#D946EF', '70 60')}>
