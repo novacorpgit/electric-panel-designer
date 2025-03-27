@@ -236,7 +236,9 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         return grp.isHighlighted;
       }
 
-      const nodeTemplates = createNodeTemplates(go, CellSize, highlightGroup);
+      // Fix for the error: Pass only the required options object to createNodeTemplates
+      const templateOptions = { go, CellSize, highlightGroup };
+      const nodeTemplates = createNodeTemplates(templateOptions);
       
       myDiagram.nodeTemplate = nodeTemplates.get("default");
       
@@ -246,7 +248,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         }
       });
 
-      myDiagram.groupTemplate = createGroupTemplate(go, CellSize, highlightGroup);
+      myDiagram.groupTemplate = createGroupTemplate(templateOptions);
 
       myDiagram.linkTemplate = createLinkTemplate(go);
 

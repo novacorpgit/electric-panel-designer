@@ -8,27 +8,27 @@ import { createPowerComponentTemplates } from './templates/powerComponentTemplat
 import { createGroupTemplate } from './templates/groupTemplate';
 import { createLinkTemplate } from './templates/linkTemplate';
 
-export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGroup: (grp: any, show: boolean) => boolean) => {
+export const createNodeTemplates = (options: TemplateOptions) => {
   const templates = new Map();
   
   // Create base node template
-  const baseNodeTemplate = createBaseNodeTemplate({ go, CellSize, highlightGroup });
+  const baseNodeTemplate = createBaseNodeTemplate(options);
   templates.set("default", baseNodeTemplate);
   
   // Add circuit breaker templates
-  const circuitBreakerTemplates = createCircuitBreakerTemplates({ go, CellSize, highlightGroup });
+  const circuitBreakerTemplates = createCircuitBreakerTemplates(options);
   circuitBreakerTemplates.forEach((template, key) => {
     templates.set(key, template);
   });
   
   // Add Schneider templates
-  const schneiderTemplates = createSchneiderTemplates({ go, CellSize, highlightGroup });
+  const schneiderTemplates = createSchneiderTemplates(options);
   schneiderTemplates.forEach((template, key) => {
     templates.set(key, template);
   });
   
   // Add power component templates
-  const powerComponentTemplates = createPowerComponentTemplates({ go, CellSize, highlightGroup });
+  const powerComponentTemplates = createPowerComponentTemplates(options);
   powerComponentTemplates.forEach((template, key) => {
     templates.set(key, template);
   });

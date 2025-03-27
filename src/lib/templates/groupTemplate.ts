@@ -1,50 +1,69 @@
 
 import { GoJSDiagram } from '../goJsInterop';
-import { TemplateOptions } from './baseTemplates';
+import { createBaseShadow, TemplateOptions } from './baseTemplates';
 
-export const createGroupTemplate = ({ go, CellSize, highlightGroup }: TemplateOptions) => {
-  const groupFill = 'rgba(173, 216, 230, 0.15)'; // Light blue background
-  const groupStroke = '#3498db';
-  const dropFill = 'rgba(46, 204, 113, 0.3)';
-  const dropStroke = '#2ecc71';
-
-  // Group template definition
-  return new go.Group({
-    layerName: 'Background',
-    resizable: true,
-    resizeObjectName: 'SHAPE',
-    locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
-    mouseDragEnter: (e: any, grp: any, prev: any) => {
-      if (!highlightGroup(grp, true)) e.diagram.currentCursor = 'not-allowed';
-      else e.diagram.currentCursor = '';
-    },
-    mouseDragLeave: (e: any, grp: any, next: any) => highlightGroup(grp, false),
-    mouseDrop: (e: any, grp: any) => {
-      const ok = grp.addMembers(grp.diagram.selection, true);
-      if (!ok) grp.diagram.currentTool.doCancel();
-    }
-  })
-    .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
+export const createGroupTemplate = (options: TemplateOptions) => {
+  const { go, CellSize, highlightGroup } = options;
+  
+  return new go.Group("Auto", {
+      selectionObjectName: "PLACEHOLDER",
+      ungroupable: true,
+      layerName: "Background",
+      layout: new go.GridLayout({
+        wrappingColumn: 1,
+        cellSize: CellSize,
+        spacing: new go.Size(4, 4),
+        alignment: go.GridLayout.Position
+      }),
+      computesBoundsAfterDrag: true,
+      computesBoundsIncludingLocation: true,
+      computesBoundsIncludingLinks: false,
+      mouseDragEnter: (e, grp, prev) => highlightGroup(grp, true),
+      mouseDragLeave: (e, grp, next) => highlightGroup(grp, false),
+      mouseDrop: (e, grp) => {
+        const ok = grp.addMembers(grp.diagram.selection, true);
+        if (!ok) grp.diagram.currentTool.doCancel();
+      },
+      handlesDragDropForMembers: true,
+      ...createBaseShadow(go)
+    })
     .add(
-      new go.Shape('Rectangle', {
-        name: 'SHAPE',
-        fill: groupFill,
-        stroke: groupStroke,
+      new go.Shape("Rectangle", {
+        name: "SHAPE",
+        fill: "rgba(173, 216, 230, 0.15)",
+        stroke: "#3498db",
         strokeWidth: 2,
-        minSize: new go.Size(CellSize.width * 2, CellSize.height * 2),
-        shadowVisible: true,
-        shadowOffset: new go.Point(3, 3),
-        shadowBlur: 5,
-        shadowColor: 'rgba(0, 0, 0, 0.15)'
+        minSize: new go.Size(100, 100)
       })
-        .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
-        .bindObject('fill', 'isHighlighted', (h: boolean) => (h ? dropFill : groupFill))
-        .bindObject('stroke', 'isHighlighted', (h: boolean) => (h ? dropStroke : groupStroke)),
-      new go.TextBlock({
-        alignment: go.Spot.TopLeft,
-        margin: 8,
-        font: 'bold 12px Inter, sans-serif',
-        stroke: '#2c3e50'
-      }).bind('text', 'key')
+    )
+    .add(
+      new go.Panel("Vertical")
+        .add(
+          new go.Panel("Auto", { margin: 8 })
+            .add(
+              new go.Shape("Rectangle", {
+                fill: "#3498db",
+                stroke: null,
+                shadowVisible: false
+              })
+            )
+            .add(
+              new go.TextBlock({
+                margin: new go.Margin(4, 4, 2, 2),
+                font: "bold 12px sans-serif",
+                stretch: go.GraphObject.Horizontal,
+                stroke: "white",
+                textAlign: "center",
+                editable: true
+              }).bind("text", "key")
+            )
+        )
+        .add(
+          new go.Placeholder({
+            padding: new go.Margin(10, 10),
+            name: "PLACEHOLDER",
+            alignment: go.Spot.TopLeft
+          })
+        )
     );
 };
