@@ -189,6 +189,38 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                   imageStretch: go.GraphObject.Uniform,
                   alignment: go.Spot.Center
                 })
+              )
+              // Add the lever switch
+              .add(
+                new go.Panel("Vertical")
+                  .add(
+                    new go.Shape("Rectangle", {
+                      width: 12,
+                      height: 30,
+                      fill: "white",
+                      stroke: "black",
+                      strokeWidth: 1,
+                      alignment: go.Spot.Center
+                    })
+                  )
+                  .add(
+                    new go.Shape("Rectangle", {
+                      width: 8,
+                      height: 5,
+                      fill: "red",
+                      stroke: null,
+                      alignment: new go.Spot(0.5, 0, 0, -2)
+                    })
+                  )
+                  .add(
+                    new go.Shape("Rectangle", {
+                      width: 8,
+                      height: 5,
+                      fill: "green",
+                      stroke: null,
+                      alignment: new go.Spot(0.5, 1, 0, 2)
+                    })
+                  )
               ),
             new go.TextBlock({
               margin: new go.Margin(3, 0, 0, 0),

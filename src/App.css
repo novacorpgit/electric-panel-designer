@@ -120,3 +120,15 @@ body {
 .NSX_IMAGE {
   background-color: transparent !important;
 }
+
+/* NSX250 lever switch styling */
+.nsx-lever {
+  position: relative;
+  z-index: 5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.nsx-indicator {
+  border-radius: 1px;
+}
