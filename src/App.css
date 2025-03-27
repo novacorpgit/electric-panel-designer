@@ -186,28 +186,32 @@ body {
   border-radius: 3px;
 }
 
-/* Dimensioning link styling */
+/* Dimensioning link styling - Enhanced for better visibility */
 .dimensioning-link {
-  stroke: #3b82f6;
-  stroke-width: 1;
-  stroke-dasharray: 3, 2;
+  stroke: #3b82f6 !important;
+  stroke-width: 1.5 !important;
+  stroke-dasharray: 3, 2 !important;
 }
 
 .dimension-text {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  fill: #3b82f6;
-  font-weight: 500;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  fill: #3b82f6 !important;
+  font-weight: 600 !important;
+  background: white !important;
+  padding: 2px 4px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
 }
 
 .dimension-extension {
-  stroke: #3b82f6;
-  stroke-width: 1;
+  stroke: #3b82f6 !important;
+  stroke-width: 1.5 !important;
 }
 
 .dimension-arrow {
-  fill: #3b82f6;
-  stroke: #3b82f6;
+  fill: #3b82f6 !important;
+  stroke: #3b82f6 !important;
 }
 
 /* Distance mode badge */
@@ -225,4 +229,16 @@ body {
   align-items: center;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   animation: fadeIn 0.3s ease;
+}
+
+/* Distance measurement labels */
+.distance-label {
+  font-size: 11px !important;
+  font-weight: bold !important;
+  color: #3b82f6 !important;
+  background-color: white !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  border: 1px solid #3b82f6 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }

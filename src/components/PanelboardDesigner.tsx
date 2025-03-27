@@ -752,8 +752,8 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     clearDistanceLinks(); // Clear existing links first
     
     // Get all nodes that are components - fix for the toArray issue
-    const nodes = [];
-    diagramInstance.nodes.each(node => {
+    const nodes: any[] = [];
+    diagramInstance.nodes.each((node: any) => {
       if (!node.isGroup && node.actualBounds && node.actualBounds.width > 0) {
         nodes.push(node);
       }
@@ -782,30 +782,102 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   const createDimensioningLink = (from: any, to: any, orientation: "Horizontal" | "Vertical") => {
     if (!diagramInstance || !goInstance) return;
     
-    const DimensioningLink = goInstance.DimensioningLink;
-    if (!DimensioningLink) {
-      console.error("DimensioningLink extension not available");
-      return;
-    }
-    
     try {
-      const link = new DimensioningLink({
-        fromNode: from,
-        toNode: to,
-        category: "Dimensioning"
-      });
+      // Create a custom link for dimensioning
+      const link = diagramInstance.linkTemplateMap.copy().first();
+      if (!link) return;
       
-      link.dimension = orientation;
-      link.dimensionSegmentIndex = 0;
-      link.dimensionOffset = orientation === "Horizontal" ? 20 : 20;
-      link.extension1Length = 10;
-      link.extension2Length = 10;
+      // Calculate start and end points based on the nodes' bounds
+      const fromBounds = from.actualBounds;
+      const toBounds = to.actualBounds;
       
-      // Store the link so we can remove it later
-      setDistanceLinks(prev => [...prev, link]);
+      let fromPoint, toPoint, distanceText;
       
-      // Add the link to the diagram
-      diagramInstance.add(link);
+      if (orientation === "Horizontal") {
+        // Determine which node is on the left
+        const isFromLeft = fromBounds.x < toBounds.x;
+        const leftNode = isFromLeft ? from : to;
+        const rightNode = isFromLeft ? to : from;
+        const leftBounds = isFromLeft ? fromBounds : toBounds;
+        const rightBounds = isFromLeft ? toBounds : fromBounds;
+        
+        // Calculate horizontal distance in mm (grid units are 10mm each)
+        const distance = Math.abs(rightBounds.x - (leftBounds.x + leftBounds.width));
+        const distanceInMm = Math.round(distance * 10); // 10mm per grid unit
+        
+        fromPoint = new goInstance.Point(leftBounds.x + leftBounds.width, leftBounds.y + leftBounds.height / 2);
+        toPoint = new goInstance.Point(rightBounds.x, rightBounds.y + rightBounds.height / 2);
+        distanceText = `${distanceInMm} mm`;
+        
+        const newLink = diagramInstance.createLink(leftNode, rightNode);
+        if (newLink) {
+          newLink.fromSpot = goInstance.Spot.Right;
+          newLink.toSpot = goInstance.Spot.Left;
+          newLink.points.clear();
+          newLink.points.add(fromPoint);
+          newLink.points.add(toPoint);
+          
+          // Style the link
+          newLink.findObject("SHAPE").stroke = "#3b82f6";
+          newLink.findObject("SHAPE").strokeWidth = 1;
+          newLink.findObject("SHAPE").strokeDashArray = [3, 2];
+          
+          // Add text showing the distance
+          const textBlock = new goInstance.TextBlock({
+            text: distanceText,
+            stroke: "#3b82f6",
+            font: "10px Inter, sans-serif",
+            background: "white",
+            margin: 2
+          });
+          newLink.midLabel = textBlock;
+          
+          // Store the link for later removal
+          setDistanceLinks(prev => [...prev, newLink]);
+        }
+      } else if (orientation === "Vertical") {
+        // Determine which node is on top
+        const isFromTop = fromBounds.y < toBounds.y;
+        const topNode = isFromTop ? from : to;
+        const bottomNode = isFromTop ? to : from;
+        const topBounds = isFromTop ? fromBounds : toBounds;
+        const bottomBounds = isFromTop ? toBounds : fromBounds;
+        
+        // Calculate vertical distance in mm (grid units are 10mm each)
+        const distance = Math.abs(bottomBounds.y - (topBounds.y + topBounds.height));
+        const distanceInMm = Math.round(distance * 10); // 10mm per grid unit
+        
+        fromPoint = new goInstance.Point(topBounds.x + topBounds.width / 2, topBounds.y + topBounds.height);
+        toPoint = new goInstance.Point(bottomBounds.x + bottomBounds.width / 2, bottomBounds.y);
+        distanceText = `${distanceInMm} mm`;
+        
+        const newLink = diagramInstance.createLink(topNode, bottomNode);
+        if (newLink) {
+          newLink.fromSpot = goInstance.Spot.Bottom;
+          newLink.toSpot = goInstance.Spot.Top;
+          newLink.points.clear();
+          newLink.points.add(fromPoint);
+          newLink.points.add(toPoint);
+          
+          // Style the link
+          newLink.findObject("SHAPE").stroke = "#3b82f6";
+          newLink.findObject("SHAPE").strokeWidth = 1;
+          newLink.findObject("SHAPE").strokeDashArray = [3, 2];
+          
+          // Add text showing the distance
+          const textBlock = new goInstance.TextBlock({
+            text: distanceText,
+            stroke: "#3b82f6",
+            font: "10px Inter, sans-serif",
+            background: "white",
+            margin: 2
+          });
+          newLink.midLabel = textBlock;
+          
+          // Store the link for later removal
+          setDistanceLinks(prev => [...prev, newLink]);
+        }
+      }
     } catch (error) {
       console.error("Error creating dimensioning link:", error);
     }
@@ -817,9 +889,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     
     // Remove all existing dimensioning links
     distanceLinks.forEach(link => {
-      if (diagramInstance.findLinkForData(link)) {
-        diagramInstance.remove(link);
-      }
+      diagramInstance.remove(link);
     });
     
     setDistanceLinks([]);
