@@ -127,6 +127,52 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     }
   };
 
+  // Handle the drop event to add components to the diagram
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    
+    if (!diagramInstance || !goInstance) return;
+    
+    // Get the node data from the drag event
+    const data = e.dataTransfer.getData("application/reactflow");
+    if (!data) return;
+    
+    try {
+      const nodeInfo = JSON.parse(data);
+      
+      // Get mouse position relative to the diagram
+      const diagramRect = diagramRef.current?.getBoundingClientRect();
+      if (!diagramRect) return;
+      
+      const x = e.clientX - diagramRect.left;
+      const y = e.clientY - diagramRect.top;
+      
+      // Convert point to diagram coordinates
+      const point = diagramInstance.transformViewToDoc(new goInstance.Point(x, y));
+      
+      // Create a new node in the diagram
+      const newNodeData = {
+        key: `${nodeInfo.type}-${Date.now()}`,
+        type: nodeInfo.type,
+        label: nodeInfo.data.label,
+        pos: point.toString(),
+        size: "50 80",
+        color: "white"
+      };
+      
+      diagramInstance.model.addNodeData(newNodeData);
+      diagramInstance.commitTransaction("Added new component");
+    } catch (error) {
+      console.error("Error adding new component:", error);
+    }
+  };
+
+  // Prevent default behavior to allow drop
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
   const setupDiagram = (go: GoJSDiagram) => {
     const CellSize = new go.Size(10, 10);
     
@@ -279,6 +325,8 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
             ref={diagramRef} 
             className="absolute inset-0 bg-gray-50"
             style={{ border: '1px solid #e2e8f0' }}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
           />
         </div>
       </div>

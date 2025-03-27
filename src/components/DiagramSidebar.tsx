@@ -10,7 +10,8 @@ import {
   CircuitBoard, 
   Ruler,
   Square,
-  Grid3X3
+  Grid3X3,
+  Move
 } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { Checkbox } from './ui/checkbox';
@@ -32,6 +33,17 @@ const DiagramSidebar: React.FC<DiagramSidebarProps> = ({
   showGrid,
   setShowGrid
 }) => {
+  // Function to handle drag start from a component
+  const handleDragStart = (event: React.DragEvent, nodeType: string, nodeData: any) => {
+    // Set the drag data with the node type and any additional data
+    event.dataTransfer.setData("application/reactflow", JSON.stringify({
+      type: nodeType,
+      data: nodeData
+    }));
+    
+    event.dataTransfer.effectAllowed = 'move';
+  };
+
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 border-b">
@@ -42,32 +54,57 @@ const DiagramSidebar: React.FC<DiagramSidebarProps> = ({
           <div className="mb-6">
             <h3 className="text-sm font-medium mb-2 text-gray-500">Circuit Breakers</h3>
             <div className="space-y-2">
-              <button className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left">
+              <div 
+                className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left cursor-grab border border-gray-200"
+                draggable
+                onDragStart={(e) => handleDragStart(e, "NSX250", { label: "NSX250" })}
+              >
                 <CircuitBoard className="h-5 w-5 text-gray-500" />
                 <span>NSX250</span>
-              </button>
-              <button className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left">
+                <Move className="h-4 w-4 ml-auto text-gray-400" />
+              </div>
+              <div 
+                className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left cursor-grab border border-gray-200"
+                draggable
+                onDragStart={(e) => handleDragStart(e, "Schneider250A", { label: "Schneider 250A" })}
+              >
                 <CircuitBoard className="h-5 w-5 text-gray-500" />
                 <span>Schneider 250A</span>
-              </button>
+                <Move className="h-4 w-4 ml-auto text-gray-400" />
+              </div>
             </div>
           </div>
 
           <div className="mb-6">
             <h3 className="text-sm font-medium mb-2 text-gray-500">Power Components</h3>
             <div className="space-y-2">
-              <button className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left">
+              <div 
+                className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left cursor-grab border border-gray-200"
+                draggable
+                onDragStart={(e) => handleDragStart(e, "Busbar", { label: "Busbar" })}
+              >
                 <Plug className="h-5 w-5 text-gray-500" />
                 <span>Busbar</span>
-              </button>
-              <button className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left">
+                <Move className="h-4 w-4 ml-auto text-gray-400" />
+              </div>
+              <div 
+                className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left cursor-grab border border-gray-200"
+                draggable
+                onDragStart={(e) => handleDragStart(e, "CircuitBreaker", { label: "Circuit Breaker" })}
+              >
                 <ToggleLeft className="h-5 w-5 text-gray-500" />
                 <span>Circuit Breaker</span>
-              </button>
-              <button className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left">
+                <Move className="h-4 w-4 ml-auto text-gray-400" />
+              </div>
+              <div 
+                className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left cursor-grab border border-gray-200"
+                draggable
+                onDragStart={(e) => handleDragStart(e, "Transformer", { label: "Transformer" })}
+              >
                 <Cable className="h-5 w-5 text-gray-500" />
                 <span>Transformer</span>
-              </button>
+                <Move className="h-4 w-4 ml-auto text-gray-400" />
+              </div>
             </div>
           </div>
 
