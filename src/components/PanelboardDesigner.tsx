@@ -55,8 +55,9 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   const [goInstance, setGoInstance] = useState<GoJSDiagram | null>(null);
   const [diagramInstance, setDiagramInstance] = useState<any>(null);
   const [showDistances, setShowDistances] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [distanceLinks, setDistanceLinks] = useState<any[]>([]);
-  const [showGrid, setShowGrid] = useState(true); // Add state for grid visibility
+  const [showGrid, setShowGrid] = useState(true);
 
   useEffect(() => {
     const initGoJS = async () => {
@@ -89,22 +90,43 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   // Effect to handle distance measurements when enabled/disabled
   useEffect(() => {
     if (diagramInstance && goInstance) {
-      if (showDistances) {
+      // Add listeners for drag events to show/hide distances during dragging
+      diagramInstance.addDiagramListener("SelectionMoved", handleSelectionMoved);
+      diagramInstance.addDiagramListener("SelectionCopied", handleSelectionMoved);
+      diagramInstance.addDiagramListener("ExternalObjectsDropped", handleSelectionMoved);
+      diagramInstance.addDiagramListener("PartResized", handleSelectionMoved);
+      
+      // Add listeners for drag start/end
+      diagramInstance.addDiagramListener("DraggingTool.DragStarted", handleDragStarted);
+      diagramInstance.addDiagramListener("DraggingTool.DraggingStarted", handleDragStarted);
+      diagramInstance.addDiagramListener("DraggingTool.DragFinished", handleDragFinished);
+      diagramInstance.addDiagramListener("ExternalObjectsDropped", handleDragFinished);
+      
+      return () => {
+        // Clean up event listeners
+        diagramInstance.removeDiagramListener("SelectionMoved", handleSelectionMoved);
+        diagramInstance.removeDiagramListener("SelectionCopied", handleSelectionMoved);
+        diagramInstance.removeDiagramListener("ExternalObjectsDropped", handleSelectionMoved);
+        diagramInstance.removeDiagramListener("PartResized", handleSelectionMoved);
+        
+        diagramInstance.removeDiagramListener("DraggingTool.DragStarted", handleDragStarted);
+        diagramInstance.removeDiagramListener("DraggingTool.DraggingStarted", handleDragStarted);
+        diagramInstance.removeDiagramListener("DraggingTool.DragFinished", handleDragFinished);
+        diagramInstance.removeDiagramListener("ExternalObjectsDropped", handleDragFinished);
+      };
+    }
+  }, [diagramInstance, goInstance, showDistances]);
+
+  // Effect to update distances when dragging state changes
+  useEffect(() => {
+    if (diagramInstance && goInstance) {
+      if (isDragging && showDistances) {
         setupDimensioningLinks();
-        
-        // Update distance measurements when nodes move
-        diagramInstance.addDiagramListener("SelectionMoved", updateDistances);
-        diagramInstance.addDiagramListener("PartResized", updateDistances);
-      } else {
-        // Remove all distance links when disabled
+      } else if (!isDragging) {
         clearDistanceLinks();
-        
-        // Remove listeners when disabled
-        diagramInstance.removeDiagramListener("SelectionMoved", updateDistances);
-        diagramInstance.removeDiagramListener("PartResized", updateDistances);
       }
     }
-  }, [showDistances, diagramInstance, goInstance]);
+  }, [isDragging, diagramInstance, goInstance, showDistances]);
 
   // Effect to handle grid visibility
   useEffect(() => {
@@ -116,6 +138,21 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       }
     }
   }, [showGrid, diagramInstance]);
+
+  const handleDragStarted = () => {
+    setIsDragging(true);
+  };
+
+  const handleDragFinished = () => {
+    setIsDragging(false);
+  };
+
+  const handleSelectionMoved = () => {
+    if (isDragging && showDistances) {
+      // Update distance measurements during dragging
+      setupDimensioningLinks();
+    }
+  };
 
   const setupDiagram = (go: GoJSDiagram) => {
     const CellSize = new go.Size(10, 10);
@@ -751,7 +788,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     
     clearDistanceLinks(); // Clear existing links first
     
-    // Get all nodes that are components - fix for the toArray issue
+    // Get all nodes that are components - fixed implementation for nodes collection
     const nodes: any[] = [];
     diagramInstance.nodes.each((node: any) => {
       if (!node.isGroup && node.actualBounds && node.actualBounds.width > 0) {
@@ -775,6 +812,161 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
           createDimensioningLink(node1, node2, "Vertical");
         }
       }
+    }
+    
+    // Also show distances between components and their containing enclosures
+    nodes.forEach((node) => {
+      if (node.containingGroup) {
+        createEnclosureDistanceLinks(node, node.containingGroup);
+      }
+    });
+  };
+
+  // Function to create distance links between a component and its enclosure
+  const createEnclosureDistanceLinks = (node: any, enclosure: any) => {
+    if (!diagramInstance || !goInstance) return;
+    
+    try {
+      const nodeBounds = node.actualBounds;
+      const enclosureBounds = enclosure.actualBounds;
+      
+      // Distance to left edge of enclosure
+      const leftDistance = Math.abs(nodeBounds.x - enclosureBounds.x);
+      if (leftDistance > 5) { // Only show if distance is significant
+        const leftLink = diagramInstance.createLink(node, enclosure);
+        if (leftLink) {
+          const startPoint = new goInstance.Point(nodeBounds.x, nodeBounds.y + nodeBounds.height / 2);
+          const endPoint = new goInstance.Point(enclosureBounds.x, nodeBounds.y + nodeBounds.height / 2);
+          
+          leftLink.fromSpot = goInstance.Spot.Left;
+          leftLink.toSpot = goInstance.Spot.Left;
+          leftLink.points.clear();
+          leftLink.points.add(startPoint);
+          leftLink.points.add(endPoint);
+          
+          // Style the link
+          leftLink.findObject("SHAPE").stroke = "#9b87f5"; // Use purple for enclosure distances
+          leftLink.findObject("SHAPE").strokeWidth = 1;
+          leftLink.findObject("SHAPE").strokeDashArray = [3, 2];
+          
+          // Add text showing the distance
+          const leftText = `${Math.round(leftDistance * 10)} mm`;
+          const leftTextBlock = new goInstance.TextBlock({
+            text: leftText,
+            stroke: "#9b87f5",
+            font: "10px Inter, sans-serif",
+            background: "white",
+            margin: 2
+          });
+          leftLink.midLabel = leftTextBlock;
+          
+          setDistanceLinks(prev => [...prev, leftLink]);
+        }
+      }
+      
+      // Distance to right edge of enclosure
+      const rightDistance = Math.abs(enclosureBounds.x + enclosureBounds.width - (nodeBounds.x + nodeBounds.width));
+      if (rightDistance > 5) {
+        const rightLink = diagramInstance.createLink(node, enclosure);
+        if (rightLink) {
+          const startPoint = new goInstance.Point(nodeBounds.x + nodeBounds.width, nodeBounds.y + nodeBounds.height / 2);
+          const endPoint = new goInstance.Point(enclosureBounds.x + enclosureBounds.width, nodeBounds.y + nodeBounds.height / 2);
+          
+          rightLink.fromSpot = goInstance.Spot.Right;
+          rightLink.toSpot = goInstance.Spot.Right;
+          rightLink.points.clear();
+          rightLink.points.add(startPoint);
+          rightLink.points.add(endPoint);
+          
+          // Style the link
+          rightLink.findObject("SHAPE").stroke = "#9b87f5";
+          rightLink.findObject("SHAPE").strokeWidth = 1;
+          rightLink.findObject("SHAPE").strokeDashArray = [3, 2];
+          
+          // Add text showing the distance
+          const rightText = `${Math.round(rightDistance * 10)} mm`;
+          const rightTextBlock = new goInstance.TextBlock({
+            text: rightText,
+            stroke: "#9b87f5",
+            font: "10px Inter, sans-serif",
+            background: "white",
+            margin: 2
+          });
+          rightLink.midLabel = rightTextBlock;
+          
+          setDistanceLinks(prev => [...prev, rightLink]);
+        }
+      }
+      
+      // Distance to top edge of enclosure
+      const topDistance = Math.abs(nodeBounds.y - enclosureBounds.y);
+      if (topDistance > 5) {
+        const topLink = diagramInstance.createLink(node, enclosure);
+        if (topLink) {
+          const startPoint = new goInstance.Point(nodeBounds.x + nodeBounds.width / 2, nodeBounds.y);
+          const endPoint = new goInstance.Point(nodeBounds.x + nodeBounds.width / 2, enclosureBounds.y);
+          
+          topLink.fromSpot = goInstance.Spot.Top;
+          topLink.toSpot = goInstance.Spot.Top;
+          topLink.points.clear();
+          topLink.points.add(startPoint);
+          topLink.points.add(endPoint);
+          
+          // Style the link
+          topLink.findObject("SHAPE").stroke = "#9b87f5";
+          topLink.findObject("SHAPE").strokeWidth = 1;
+          topLink.findObject("SHAPE").strokeDashArray = [3, 2];
+          
+          // Add text showing the distance
+          const topText = `${Math.round(topDistance * 10)} mm`;
+          const topTextBlock = new goInstance.TextBlock({
+            text: topText,
+            stroke: "#9b87f5",
+            font: "10px Inter, sans-serif",
+            background: "white",
+            margin: 2
+          });
+          topLink.midLabel = topTextBlock;
+          
+          setDistanceLinks(prev => [...prev, topLink]);
+        }
+      }
+      
+      // Distance to bottom edge of enclosure
+      const bottomDistance = Math.abs(enclosureBounds.y + enclosureBounds.height - (nodeBounds.y + nodeBounds.height));
+      if (bottomDistance > 5) {
+        const bottomLink = diagramInstance.createLink(node, enclosure);
+        if (bottomLink) {
+          const startPoint = new goInstance.Point(nodeBounds.x + nodeBounds.width / 2, nodeBounds.y + nodeBounds.height);
+          const endPoint = new goInstance.Point(nodeBounds.x + nodeBounds.width / 2, enclosureBounds.y + enclosureBounds.height);
+          
+          bottomLink.fromSpot = goInstance.Spot.Bottom;
+          bottomLink.toSpot = goInstance.Spot.Bottom;
+          bottomLink.points.clear();
+          bottomLink.points.add(startPoint);
+          bottomLink.points.add(endPoint);
+          
+          // Style the link
+          bottomLink.findObject("SHAPE").stroke = "#9b87f5";
+          bottomLink.findObject("SHAPE").strokeWidth = 1;
+          bottomLink.findObject("SHAPE").strokeDashArray = [3, 2];
+          
+          // Add text showing the distance
+          const bottomText = `${Math.round(bottomDistance * 10)} mm`;
+          const bottomTextBlock = new goInstance.TextBlock({
+            text: bottomText,
+            stroke: "#9b87f5",
+            font: "10px Inter, sans-serif",
+            background: "white",
+            margin: 2
+          });
+          bottomLink.midLabel = bottomTextBlock;
+          
+          setDistanceLinks(prev => [...prev, bottomLink]);
+        }
+      }
+    } catch (error) {
+      console.error("Error creating enclosure distance links:", error);
     }
   };
 
@@ -897,7 +1089,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
 
   // Function to update distance measurements when components move
   const updateDistances = () => {
-    if (showDistances) {
+    if (showDistances && isDragging) {
       // Clear and re-create all distance links
       setupDimensioningLinks();
     }
@@ -962,6 +1154,12 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
 
   const toggleDistances = () => {
     setShowDistances(!showDistances);
+    if (!showDistances) {
+      setIsDragging(true); // Force distances to show initially when turned on
+      setTimeout(() => setIsDragging(false), 2000); // Hide after 2 seconds if not dragging
+    } else {
+      clearDistanceLinks(); // Clear all links when turning off
+    }
     toast({
       description: `Distance measurements ${!showDistances ? 'enabled' : 'disabled'}`,
     });
@@ -1114,24 +1312,44 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                   <MenubarSeparator />
                   <MenubarLabel>Transformers</MenubarLabel>
                   <MenubarSeparator />
-                  <MenubarItem onClick={() => addComponent('TX1', 'TX 100kVA', '#666666', '100 100')}>TX 100kVA</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('TX2', 'TX 250kVA', '#666666', '120 120')}>TX 250kVA</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('TX3', 'TX 500kVA', '#666666', '150 150')}>TX 500kVA</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('TX1', 'TX 100kVA', '#666666', '100 100')}>
+                    TX 100kVA
+                  </MenubarItem>
+                  <MenubarItem onClick={() => addComponent('TX2', 'TX 250kVA', '#666666', '120 120')}>
+                    TX 250kVA
+                  </MenubarItem>
+                  <MenubarItem onClick={() => addComponent('TX3', 'TX 500kVA', '#666666', '150 150')}>
+                    TX 500kVA
+                  </MenubarItem>
                   
                   <MenubarSeparator />
                   <MenubarLabel>Busbars</MenubarLabel>
                   <MenubarSeparator />
-                  <MenubarItem onClick={() => addComponent('BB1', 'Bus Bar 100A', '#8B4513', '150 30')}>Bus Bar 100A</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('BB2', 'Bus Bar 250A', '#8B4513', '200 30')}>Bus Bar 250A</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('BB3', 'Bus Bar 400A', '#8B4513', '250 30')}>Bus Bar 400A</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('BB4', 'Bus Bar 630A', '#8B4513', '300 30')}>Bus Bar 630A</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('BB1', 'Bus Bar 100A', '#8B4513', '150 30')}>
+                    Bus Bar 100A
+                  </MenubarItem>
+                  <MenubarItem onClick={() => addComponent('BB2', 'Bus Bar 250A', '#8B4513', '200 30')}>
+                    Bus Bar 250A
+                  </MenubarItem>
+                  <MenubarItem onClick={() => addComponent('BB3', 'Bus Bar 400A', '#8B4513', '250 30')}>
+                    Bus Bar 400A
+                  </MenubarItem>
+                  <MenubarItem onClick={() => addComponent('BB4', 'Bus Bar 630A', '#8B4513', '300 30')}>
+                    Bus Bar 630A
+                  </MenubarItem>
                   
                   <MenubarSeparator />
                   <MenubarLabel>Switches</MenubarLabel>
                   <MenubarSeparator />
-                  <MenubarItem onClick={() => addComponent('DS1', 'Disconnector', '#D946EF', '70 60')}>Disconnector</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('DS2', 'Isolator', '#D946EF', '70 60')}>Isolator</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('DS3', 'Changeover', '#D946EF', '100 70')}>Changeover</MenubarItem>
+                  <MenubarItem onClick={() => addComponent('DS1', 'Disconnector', '#D946EF', '70 60')}>
+                    Disconnector
+                  </MenubarItem>
+                  <MenubarItem onClick={() => addComponent('DS2', 'Isolator', '#D946EF', '70 60')}>
+                    Isolator
+                  </MenubarItem>
+                  <MenubarItem onClick={() => addComponent('DS3', 'Changeover', '#D946EF', '100 70')}>
+                    Changeover
+                  </MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
               
