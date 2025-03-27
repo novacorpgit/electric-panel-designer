@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -92,6 +93,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     
     setDiagramInstance(myDiagram);
 
+    // Define the node template for normal components
     myDiagram.nodeTemplate = new go.Node('Auto', {
       resizable: true,
       resizeObjectName: 'SHAPE',
@@ -143,6 +145,62 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
             }).bind('text', 'label')
           )
       );
+
+    // Special node template for NSX250
+    const nsx250Template = new go.Node('Auto', {
+      resizable: true,
+      resizeObjectName: 'SHAPE',
+      locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
+      mouseDragEnter: (e: any, node: any) => {
+        e.handled = true;
+        node.findObject('SHAPE').fill = 'red';
+        e.diagram.currentCursor = 'not-allowed';
+        highlightGroup(node.containingGroup, false);
+      },
+      mouseDragLeave: (e: any, node: any) => node.updateTargetBindings(),
+      mouseDrop: (e: any, node: any) => node.diagram.currentTool.doCancel()
+    })
+      .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
+      .add(
+        new go.Panel("Vertical")
+          .add(
+            new go.Panel("Spot")
+              .add(
+                new go.Shape('Rectangle', {
+                  name: 'SHAPE',
+                  fill: 'white',
+                  stroke: '#34495e',
+                  strokeWidth: 1.5,
+                  minSize: new go.Size(70, 90),
+                  desiredSize: new go.Size(70, 90),
+                  shadowVisible: true,
+                  shadowOffset: new go.Point(2, 2),
+                  shadowBlur: 3,
+                  shadowColor: 'rgba(0, 0, 0, 0.2)'
+                })
+                  .bind('fill', 'color')
+                  .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
+              )
+              .add(
+                new go.Picture({
+                  name: "NSX_IMAGE",
+                  source: "/lovable-uploads/b79bb85b-d7f1-41eb-9957-1af1528aaa78.png",
+                  desiredSize: new go.Size(60, 80),
+                  imageStretch: go.GraphObject.Uniform,
+                  alignment: go.Spot.Center
+                })
+              ),
+            new go.TextBlock({
+              margin: new go.Margin(3, 0, 0, 0),
+              font: 'bold 11px Inter, sans-serif',
+              stroke: '#333',
+              text: "NSX250"
+            })
+          )
+      );
+
+    // Add the NSX250 node template to the diagram
+    myDiagram.nodeTemplateMap.add("NSX250", nsx250Template);
 
     function highlightGroup(grp: any, show: boolean) {
       if (!grp) return false;
@@ -294,7 +352,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   const addComponent = (key: string, label: string, color: string, size: string, image?: string) => {
     if (diagramInstance && goInstance) {
       try {
-        const nodeData: any = { 
+        let nodeData: any = { 
           key: `${key}_${Math.floor(Math.random() * 1000)}`, 
           label, 
           color, 
@@ -302,7 +360,10 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
           pos: '100 100' 
         };
 
-        if (image) {
+        // Special handling for NSX250
+        if (key === 'NSX250') {
+          nodeData.category = 'NSX250'; // Use the special template
+        } else if (image) {
           nodeData.image = image;
         }
 
@@ -395,7 +456,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                   <MenubarItem onClick={() => addComponent('ACB2', 'ACB 2', '#F97316', '50 80')}>ACB 2</MenubarItem>
                   <MenubarItem onClick={() => addComponent('MCB1P', 'MCB 1P', '#F97316', '50 50')}>MCB 1P</MenubarItem>
                   <MenubarItem onClick={() => addComponent('MCB3P', 'MCB 3P', '#F97316', '50 50')}>MCB 3P</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90', '/lovable-uploads/b79bb85b-d7f1-41eb-9957-1af1528aaa78.png')}>
+                  <MenubarItem onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90')}>
                     NSX250
                   </MenubarItem>
                   
@@ -468,7 +529,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                         variant="outline" 
                         size="sm" 
                         className="h-auto py-2 flex flex-col items-center justify-center border-orange-200 bg-white hover:bg-orange-100"
-                        onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90', '/lovable-uploads/b79bb85b-d7f1-41eb-9957-1af1528aaa78.png')}
+                        onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90')}
                       >
                         <span className="text-xs">NSX250</span>
                       </Button>
@@ -570,7 +631,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                     <ContextMenuItem onClick={() => addComponent('ACB1', 'ACB 1', '#F97316', '50 80')}>
                       ACB Circuit Breaker
                     </ContextMenuItem>
-                    <ContextMenuItem onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90', '/lovable-uploads/b79bb85b-d7f1-41eb-9957-1af1528aaa78.png')}>
+                    <ContextMenuItem onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90')}>
                       NSX250 Breaker
                     </ContextMenuItem>
                     <ContextMenuItem onClick={() => addComponent('TX1', 'TX 100kVA', '#8B5CF6', '100 100')}>

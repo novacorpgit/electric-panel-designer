@@ -110,7 +110,13 @@ body {
   background-position: center;
 }
 
-/* Ensure the NSX250 image is properly displayed */
-[data-image-component="NSX250"] {
+/* Fix for NSX250 image */
+[data-category="NSX250"] {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+/* Ensure images display properly */
+.NSX_IMAGE {
   background-color: transparent !important;
 }

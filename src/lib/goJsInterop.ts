@@ -21,6 +21,7 @@ export interface GoJSDiagram {
   Margin: any;
   Picture: any; // Enhanced Picture support
   GraphObject: any; // Add GraphObject for image stretch constants
+  Part: any; // Add Part support
 }
 
 // Global declaration for GoJS
@@ -43,6 +44,7 @@ declare global {
       Margin: any;
       Picture: any; // Enhanced Picture support
       GraphObject: any; // Add GraphObject for image stretch constants
+      Part: any; // Add Part support
     };
   }
 }
