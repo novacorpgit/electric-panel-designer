@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -57,6 +56,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   const [diagramInstance, setDiagramInstance] = useState<any>(null);
   const [showDistances, setShowDistances] = useState(false);
   const [distanceLinks, setDistanceLinks] = useState<any[]>([]);
+  const [showGrid, setShowGrid] = useState(true); // Add state for grid visibility
 
   useEffect(() => {
     const initGoJS = async () => {
@@ -106,14 +106,30 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     }
   }, [showDistances, diagramInstance, goInstance]);
 
+  // Effect to handle grid visibility
+  useEffect(() => {
+    if (diagramInstance) {
+      const gridPanel = diagramInstance.grid;
+      if (gridPanel) {
+        gridPanel.visible = showGrid;
+        diagramInstance.requestUpdate();
+      }
+    }
+  }, [showGrid, diagramInstance]);
+
   const setupDiagram = (go: GoJSDiagram) => {
     const CellSize = new go.Size(10, 10);
     
     const myDiagram = new go.Diagram(diagramRef.current, {
-      grid: new go.Panel('Grid', { gridCellSize: CellSize })
+      grid: new go.Panel('Grid', { 
+        gridCellSize: CellSize,
+        visible: true,
+        gridStyle: go.Panel.Uniform,
+        className: 'grid-panel'
+      })
         .add(
-          new go.Shape('LineH', { stroke: 'rgba(169, 169, 169, 0.15)' }),
-          new go.Shape('LineV', { stroke: 'rgba(169, 169, 169, 0.15)' })
+          new go.Shape('LineH', { stroke: 'rgba(169, 169, 169, 0.25)', strokeWidth: 0.5 }),
+          new go.Shape('LineV', { stroke: 'rgba(169, 169, 169, 0.25)', strokeWidth: 0.5 })
         ),
       'draggingTool.isGridSnapEnabled': true,
       'draggingTool.gridSnapCellSpot': go.Spot.Center,
@@ -640,7 +656,8 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       mouseDrop: (e: any, grp: any) => {
         const ok = grp.addMembers(grp.diagram.selection, true);
         if (!ok) grp.diagram.currentTool.doCancel();
-      }
+      },
+      className: 'enclosure-panel'
     })
       .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
       .add(
@@ -714,6 +731,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       new go.Shape({ toArrow: "OpenTriangle", stroke: "#404040", fill: null })
     );
 
+    // Create the model with the initial enclosures
     myDiagram.model = new go.GraphLinksModel([
       { key: 'Panel A', isGroup: true, pos: '0 0', size: '200 300' },
       { key: 'Panel B', isGroup: true, pos: '250 0', size: '200 300' },
@@ -870,6 +888,13 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     });
   };
 
+  const toggleGrid = () => {
+    setShowGrid(!showGrid);
+    toast({
+      description: `Grid ${!showGrid ? 'visible' : 'hidden'}`,
+    });
+  };
+
   const addComponent = (key: string, label: string, color: string, size: string, image?: string) => {
     if (diagramInstance && goInstance) {
       try {
@@ -936,6 +961,13 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         };
         
         diagramInstance.model.addNodeData(nodeData);
+        
+        // Center on the new enclosure
+        const newNode = diagramInstance.findNodeForData(nodeData);
+        if (newNode) {
+          diagramInstance.centerRect(newNode.actualBounds);
+        }
+        
         toast({
           description: `Added ${name} enclosure`,
         });
@@ -1033,6 +1065,9 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                   <MenubarItem onClick={toggleDistances}>
                     {showDistances ? "Hide" : "Show"} Component Distances
                   </MenubarItem>
+                  <MenubarItem onClick={toggleGrid}>
+                    {showGrid ? "Hide" : "Show"} Grid
+                  </MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
             </Menubar>
@@ -1045,7 +1080,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                 Quick Add
               </h3>
               <div className="border-b pb-3 mb-3">
-                <div className="flex items-center space-x-2 mb-2">
+                <div className="flex flex-col space-y-2">
                   <div className="flex items-center space-x-2">
                     <Switch 
                       id="distance-toggle" 
@@ -1060,9 +1095,37 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                       Component Distances
                     </label>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch 
+                      id="grid-toggle" 
+                      checked={showGrid} 
+                      onCheckedChange={toggleGrid} 
+                    />
+                    <label 
+                      htmlFor="grid-toggle" 
+                      className="text-sm font-medium leading-none flex items-center gap-1 cursor-pointer"
+                    >
+                      <Square className="h-4 w-4" />
+                      Show Grid
+                    </label>
+                  </div>
                 </div>
               </div>
-              <ScrollArea className="h-[calc(100vh-350px)]">
+              <div className="border-b pb-3 mb-3">
+                <h4 className="font-medium text-gray-700 mb-2">Enclosures</h4>
+                <div className="flex flex-col space-y-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start border-blue-200 bg-white hover:bg-blue-50"
+                    onClick={() => addEnclosure(`Panel ${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`)}
+                  >
+                    <Database className="h-4 w-4 mr-2" />
+                    New Panel Enclosure
+                  </Button>
+                </div>
+              </div>
+              <ScrollArea className="h-[calc(100vh-420px)]">
                 <div className="space-y-3">
                   <div className="bg-orange-50 rounded-md p-2">
                     <div className="font-medium text-orange-700 flex items-center mb-2">
@@ -1224,9 +1287,12 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                   </ContextMenuGroup>
                   <ContextMenuSeparator />
                   <ContextMenuGroup>
-                    <ContextMenuLabel>Measurement</ContextMenuLabel>
+                    <ContextMenuLabel>Display Options</ContextMenuLabel>
                     <ContextMenuItem onClick={toggleDistances}>
                       {showDistances ? "Hide" : "Show"} Distances
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={toggleGrid}>
+                      {showGrid ? "Hide" : "Show"} Grid
                     </ContextMenuItem>
                   </ContextMenuGroup>
                 </ContextMenuContent>

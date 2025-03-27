@@ -1,4 +1,3 @@
-
 #root {
   width: 100%;
   height: 100vh;
@@ -33,6 +32,19 @@ body {
   height: 100%;
   background-color: #f8fafc;
   transition: all 0.3s ease;
+}
+
+/* Make grid more visible */
+.grid-panel line {
+  stroke: rgba(0, 0, 0, 0.1);
+  stroke-width: 0.5;
+}
+
+/* Make enclosures more visible */
+.enclosure-panel {
+  background-color: rgba(41, 128, 185, 0.1);
+  border: 1.5px solid #3498db;
+  border-radius: 8px;
 }
 
 /* Animation for diagram elements */
