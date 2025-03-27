@@ -388,8 +388,7 @@ export const createGroupTemplate = (go: GoJSDiagram, CellSize: any, highlightGro
     mouseDrop: (e: any, grp: any) => {
       const ok = grp.addMembers(grp.diagram.selection, true);
       if (!ok) grp.diagram.currentTool.doCancel();
-    },
-    className: 'enclosure-panel'
+    }
   })
     .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
     .add(
