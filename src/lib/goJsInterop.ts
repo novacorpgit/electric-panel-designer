@@ -26,6 +26,7 @@ export interface GoJSDiagram {
   DimensioningLink: any; // Add DimensioningLink extension
   LayeredDigraphLayout: any; // For layout management
   "DraggingTool.prototype": any; // For customizing the dragging tool
+  Placeholder: any; // Add Placeholder property for groupTemplate
 }
 
 // Global declaration for GoJS
@@ -53,6 +54,7 @@ declare global {
       LayeredDigraphLayout: any; // For layout management
       DimensioningLink: any; // Add DimensioningLink extension
       "DraggingTool.prototype": any; // For dragging tool prototype
+      Placeholder: any; // Add Placeholder to Window.go as well
     };
   }
 }
