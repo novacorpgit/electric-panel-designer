@@ -203,16 +203,17 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         grid: new go.Panel('Grid', { 
           gridCellSize: CellSize,
           visible: showGrid,
-          gridStyle: go.Panel.Uniform
+          gridStyle: go.Panel.Uniform,
+          className: 'grid-panel'
         })
           .add(
             new go.Shape('LineH', { 
-              stroke: 'rgba(173, 216, 230, 0.4)', // Light blue grid lines
-              strokeWidth: 0.5
+              stroke: 'rgba(173, 216, 230, 0.7)', // Light blue grid lines with higher opacity
+              strokeWidth: 0.7 // Slightly thicker lines for better visibility
             }),
             new go.Shape('LineV', { 
-              stroke: 'rgba(173, 216, 230, 0.4)', // Light blue grid lines
-              strokeWidth: 0.5
+              stroke: 'rgba(173, 216, 230, 0.7)', // Light blue grid lines with higher opacity
+              strokeWidth: 0.7 // Slightly thicker lines for better visibility
             })
           ),
         'draggingTool.isGridSnapEnabled': true,
@@ -221,9 +222,10 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         'animationManager.isEnabled': true,
         'undoManager.isEnabled': true,
         'initialContentAlignment': go.Spot.Center,
-        "allowDrop": true,
-        "backgroundColor": "#F8FAFC" // Light background color
+        "allowDrop": true
       });
+      
+      myDiagram.div.className = "gojs-diagram";
       
       setDiagramInstance(myDiagram);
 
@@ -287,24 +289,27 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
           isGroup: true, 
           pos: '0 0', 
           size: '350 350',
-          background: 'rgba(173, 216, 230, 0.15)', // Light blue background
-          stroke: '#3498db' // Blue border
+          background: 'rgba(173, 216, 230, 0.3)', // Light blue background with increased opacity
+          stroke: '#3498db', // Blue border
+          category: 'panel'
         },
         { 
           key: 'Panel B', 
           isGroup: true, 
           pos: '400 0', 
           size: '250 350',
-          background: 'rgba(173, 216, 230, 0.15)', // Light blue background
-          stroke: '#3498db' // Blue border
+          background: 'rgba(173, 216, 230, 0.3)', // Light blue background with increased opacity
+          stroke: '#3498db', // Blue border
+          category: 'panel'
         },
         { 
           key: 'Panel C', 
           isGroup: true, 
           pos: '0 400', 
           size: '650 250',
-          background: 'rgba(173, 216, 230, 0.15)', // Light blue background
-          stroke: '#3498db' // Blue border
+          background: 'rgba(173, 216, 230, 0.3)', // Light blue background with increased opacity
+          stroke: '#3498db', // Blue border
+          category: 'panel'
         }
       ]);
       
@@ -389,8 +394,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         <div className="flex-1 relative">
           <div 
             ref={diagramRef} 
-            className="absolute inset-0 bg-gray-50"
-            style={{ border: '1px solid #e2e8f0' }}
+            className="absolute inset-0 gojs-diagram"
             onDrop={handleDrop}
             onDragOver={handleDragOver}
           />
