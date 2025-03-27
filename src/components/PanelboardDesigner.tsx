@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
 import { Button } from '../components/ui/button';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { createNodeTemplates, createGroupTemplate, createLinkTemplate } from '../lib/diagramTemplates';
 import { setupDimensioningLinks, clearDistanceLinks } from '../lib/dimensioningUtils';
 import DiagramSidebar from './DiagramSidebar';
@@ -228,7 +227,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
 
   return (
     <div className="flex h-full w-full">
-      <SidebarProvider>
+      <div className="w-64 border-r bg-gray-50">
         <DiagramSidebar 
           allowTopLevel={allowTopLevel}
           setAllowTopLevel={setAllowTopLevel}
@@ -237,53 +236,52 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
           showGrid={showGrid}
           setShowGrid={setShowGrid}
         />
-        <div className="flex flex-col h-full">
-          <Menubar className="rounded-none border-b border-t-0 border-l-0 border-r-0">
-            <MenubarMenu>
-              <MenubarTrigger>File</MenubarTrigger>
-              <MenubarContent>
-                <MenubarItem>New</MenubarItem>
-                <MenubarItem>Open</MenubarItem>
-                <MenubarSeparator />
-                <MenubarItem>Save</MenubarItem>
-                <MenubarItem>Save As</MenubarItem>
-                <MenubarSeparator />
-                <MenubarItem>Export</MenubarItem>
-              </MenubarContent>
-            </MenubarMenu>
-            <MenubarMenu>
-              <MenubarTrigger>Edit</MenubarTrigger>
-              <MenubarContent>
-                <MenubarItem>Undo</MenubarItem>
-                <MenubarItem>Redo</MenubarItem>
-                <MenubarSeparator />
-                <MenubarItem>Cut</MenubarItem>
-                <MenubarItem>Copy</MenubarItem>
-                <MenubarItem>Paste</MenubarItem>
-              </MenubarContent>
-            </MenubarMenu>
-            <MenubarMenu>
-              <MenubarTrigger>View</MenubarTrigger>
-              <MenubarContent>
-                <MenubarItem onClick={() => setShowGrid(!showGrid)}>
-                  {showGrid ? "Hide Grid" : "Show Grid"}
-                </MenubarItem>
-                <MenubarItem onClick={() => setShowDistances(!showDistances)}>
-                  {showDistances ? "Hide Distances" : "Show Distances"}
-                </MenubarItem>
-              </MenubarContent>
-            </MenubarMenu>
-          </Menubar>
-          <div className="flex-1 relative">
-            <div 
-              ref={diagramRef} 
-              className="absolute inset-0 bg-gray-50"
-              style={{ border: '1px solid #e2e8f0' }}
-            />
-          </div>
+      </div>
+      <div className="flex flex-col flex-1 h-full">
+        <Menubar className="rounded-none border-b border-t-0 border-l-0 border-r-0">
+          <MenubarMenu>
+            <MenubarTrigger>File</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem>New</MenubarItem>
+              <MenubarItem>Open</MenubarItem>
+              <MenubarSeparator />
+              <MenubarItem>Save</MenubarItem>
+              <MenubarItem>Save As</MenubarItem>
+              <MenubarSeparator />
+              <MenubarItem>Export</MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+          <MenubarMenu>
+            <MenubarTrigger>Edit</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem>Undo</MenubarItem>
+              <MenubarItem>Redo</MenubarItem>
+              <MenubarSeparator />
+              <MenubarItem>Cut</MenubarItem>
+              <MenubarItem>Copy</MenubarItem>
+              <MenubarItem>Paste</MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+          <MenubarMenu>
+            <MenubarTrigger>View</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem onClick={() => setShowGrid(!showGrid)}>
+                {showGrid ? "Hide Grid" : "Show Grid"}
+              </MenubarItem>
+              <MenubarItem onClick={() => setShowDistances(!showDistances)}>
+                {showDistances ? "Hide Distances" : "Show Distances"}
+              </MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+        </Menubar>
+        <div className="flex-1 relative">
+          <div 
+            ref={diagramRef} 
+            className="absolute inset-0 bg-gray-50"
+            style={{ border: '1px solid #e2e8f0' }}
+          />
         </div>
-        <SidebarTrigger />
-      </SidebarProvider>
+      </div>
     </div>
   );
 };
