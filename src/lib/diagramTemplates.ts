@@ -1,4 +1,3 @@
-
 import { GoJSDiagram } from './goJsInterop';
 
 export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGroup: (grp: any, show: boolean) => boolean) => {
@@ -89,7 +88,8 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
                 shadowVisible: true,
                 shadowOffset: new go.Point(2, 2),
                 shadowBlur: 3,
-                shadowColor: 'rgba(0, 0, 0, 0.2)'
+                shadowColor: 'rgba(0, 0, 0, 0.2)',
+                visible: false
               })
                 .bind('fill', 'color')
                 .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
@@ -98,42 +98,10 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
               new go.Picture({
                 name: "NSX_IMAGE",
                 source: "/lovable-uploads/b79bb85b-d7f1-41eb-9957-1af1528aaa78.png",
-                desiredSize: new go.Size(60, 80),
+                desiredSize: new go.Size(70, 90),
                 imageStretch: go.GraphObject.Uniform,
                 alignment: go.Spot.Center
               })
-            )
-            // Add the lever switch
-            .add(
-              new go.Panel("Vertical")
-                .add(
-                  new go.Shape("Rectangle", {
-                    width: 12,
-                    height: 30,
-                    fill: "white",
-                    stroke: "black",
-                    strokeWidth: 1,
-                    alignment: go.Spot.Center
-                  })
-                )
-                .add(
-                  new go.Shape("Rectangle", {
-                    width: 8,
-                    height: 5,
-                    fill: "red",
-                    stroke: null,
-                    alignment: new go.Spot(0.5, 0, 0, -2)
-                  })
-                )
-                .add(
-                  new go.Shape("Rectangle", {
-                    width: 8,
-                    height: 5,
-                    fill: "green",
-                    stroke: null,
-                    alignment: new go.Spot(0.5, 1, 0, 2)
-                  })
-                )
             ),
           new go.TextBlock({
             margin: new go.Margin(3, 0, 0, 0),
@@ -173,99 +141,17 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
                 strokeWidth: 1.5,
                 minSize: new go.Size(80, 120),
                 desiredSize: new go.Size(80, 120),
-                shadowVisible: true,
-                shadowOffset: new go.Point(2, 2),
-                shadowBlur: 3,
-                shadowColor: 'rgba(0, 0, 0, 0.2)'
+                visible: false
               })
                 .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
             )
-            // Add the mounting holes
             .add(
-              new go.Panel("Horizontal", {
-                alignment: new go.Spot(0.5, 0, 0, 10)
-              })
-                .add(
-                  new go.Shape("Circle", {
-                    width: 5,
-                    height: 5,
-                    fill: "black",
-                    margin: new go.Margin(0, 15, 0, 15)
-                  })
-                )
-                .add(
-                  new go.Shape("Circle", {
-                    width: 5,
-                    height: 5,
-                    fill: "black",
-                    margin: new go.Margin(0, 15, 0, 15)
-                  })
-                )
-            )
-            // Add the mounting holes at the bottom
-            .add(
-              new go.Panel("Horizontal", {
-                alignment: new go.Spot(0.5, 1, 0, -10)
-              })
-                .add(
-                  new go.Shape("Circle", {
-                    width: 5,
-                    height: 5,
-                    fill: "black",
-                    margin: new go.Margin(0, 15, 0, 15)
-                  })
-                )
-                .add(
-                  new go.Shape("Circle", {
-                    width: 5,
-                    height: 5,
-                    fill: "black",
-                    margin: new go.Margin(0, 15, 0, 15)
-                  })
-                )
-            )
-            // Add terminals
-            .add(
-              new go.Panel("Vertical", {
-                alignment: new go.Spot(0.5, 0.5)
-              })
-                .add(
-                  new go.Shape("Rectangle", {
-                    width: 40,
-                    height: 8,
-                    fill: "#c0c0c0",
-                    stroke: "#666",
-                    margin: new go.Margin(5, 0, 5, 0)
-                  })
-                )
-                .add(
-                  new go.Shape("Rectangle", {
-                    width: 40,
-                    height: 8,
-                    fill: "#c0c0c0",
-                    stroke: "#666",
-                    margin: new go.Margin(5, 0, 5, 0)
-                  })
-                )
-                .add(
-                  new go.Shape("Rectangle", {
-                    width: 40,
-                    height: 8,
-                    fill: "#c0c0c0",
-                    stroke: "#666",
-                    margin: new go.Margin(5, 0, 5, 0)
-                  })
-                )
-            )
-            // Add a reset button
-            .add(
-              new go.Shape("Circle", {
-                width: 10,
-                height: 10,
-                fill: "red",
-                stroke: "black",
-                strokeWidth: 1,
-                alignment: new go.Spot(0.8, 0.2)
+              new go.Picture({
+                name: "SCHNEIDER_IMAGE",
+                source: "/lovable-uploads/schneider250a.png", // Realistic Schneider switch image
+                desiredSize: new go.Size(80, 120),
+                imageStretch: go.GraphObject.Uniform,
+                alignment: go.Spot.Center
               })
             ),
           new go.TextBlock({
@@ -279,7 +165,7 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
   
   templates.set("Schneider250A", schneider250Template);
   
-  // Special template for busbars with brown color
+  // Special template for busbars with brown color - now with realistic image
   const busbarTemplate = new go.Node('Auto', {
     resizable: true,
     resizeObjectName: 'SHAPE',
@@ -306,32 +192,17 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
                 strokeWidth: 1.5,
                 minSize: new go.Size(150, 30),
                 desiredSize: new go.Size(150, 30),
-                shadowVisible: true,
-                shadowOffset: new go.Point(2, 2),
-                shadowBlur: 3,
-                shadowColor: 'rgba(0, 0, 0, 0.3)'
+                visible: false
               })
                 .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
             )
-            // Add metallic connectors at both ends
             .add(
-              new go.Shape('Rectangle', {
-                fill: '#999999', // Silver/metallic color
-                stroke: '#666666',
-                strokeWidth: 1,
-                width: 10,
-                height: 20,
-                alignment: new go.Spot(0, 0.5, 5, 0)
-              })
-            )
-            .add(
-              new go.Shape('Rectangle', {
-                fill: '#999999', // Silver/metallic color
-                stroke: '#666666',
-                strokeWidth: 1,
-                width: 10,
-                height: 20,
-                alignment: new go.Spot(1, 0.5, -5, 0)
+              new go.Picture({
+                name: "BUSBAR_IMAGE",
+                source: "/lovable-uploads/copper-busbar.png", // Realistic copper busbar image
+                desiredSize: new go.Size(150, 30),
+                imageStretch: go.GraphObject.Fill,
+                alignment: go.Spot.Center
               })
             ),
           new go.TextBlock({
@@ -344,7 +215,7 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
   
   templates.set("Busbar", busbarTemplate);
   
-  // Circuit breaker template
+  // Circuit breaker template with realistic image
   const circuitBreakerTemplate = new go.Node('Auto', {
     resizable: true,
     resizeObjectName: 'SHAPE',
@@ -371,35 +242,18 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
                 strokeWidth: 1.5,
                 minSize: new go.Size(50, 80),
                 desiredSize: new go.Size(50, 80),
-                shadowVisible: true,
-                shadowOffset: new go.Point(2, 2),
-                shadowBlur: 3,
-                shadowColor: 'rgba(0, 0, 0, 0.3)'
+                visible: false
               })
                 .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
             )
-            // Add switch lever
             .add(
-              new go.Panel("Vertical")
-                .add(
-                  new go.Shape("Rectangle", {
-                    width: 10,
-                    height: 25,
-                    fill: "#DDDDDD",
-                    stroke: "#333333",
-                    strokeWidth: 1,
-                    alignment: go.Spot.Center
-                  })
-                )
-                .add(
-                  new go.Shape("Rectangle", {
-                    width: 6,
-                    height: 4,
-                    fill: "red",
-                    stroke: null,
-                    alignment: new go.Spot(0.5, 0, 0, -2)
-                  })
-                )
+              new go.Picture({
+                name: "BREAKER_IMAGE",
+                source: "/lovable-uploads/circuit-breaker.png", // Realistic circuit breaker image
+                desiredSize: new go.Size(50, 80),
+                imageStretch: go.GraphObject.Uniform,
+                alignment: go.Spot.Center
+              })
             ),
           new go.TextBlock({
             margin: new go.Margin(3, 0, 0, 0),
@@ -411,7 +265,7 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
   
   templates.set("CircuitBreaker", circuitBreakerTemplate);
   
-  // Transformer template
+  // Transformer template with realistic image
   const transformerTemplate = new go.Node('Auto', {
     resizable: true,
     resizeObjectName: 'SHAPE',
@@ -438,54 +292,18 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
                 strokeWidth: 1.5,
                 minSize: new go.Size(100, 100),
                 desiredSize: new go.Size(100, 100),
-                shadowVisible: true,
-                shadowOffset: new go.Point(2, 2),
-                shadowBlur: 3,
-                shadowColor: 'rgba(0, 0, 0, 0.3)'
+                visible: false
               })
                 .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
             )
-            // Add cooling fins
             .add(
-              new go.Panel("Horizontal", {
-                alignment: new go.Spot(0.5, 1, 0, -5)
+              new go.Picture({
+                name: "TRANSFORMER_IMAGE",
+                source: "/lovable-uploads/transformer.png", // Realistic transformer image
+                desiredSize: new go.Size(100, 100),
+                imageStretch: go.GraphObject.Uniform,
+                alignment: go.Spot.Center
               })
-                .add(
-                  new go.Shape("Rectangle", {
-                    width: 5,
-                    height: 15,
-                    fill: "#999999",
-                    stroke: "#666666",
-                    margin: new go.Margin(0, 3, 0, 3)
-                  })
-                )
-                .add(
-                  new go.Shape("Rectangle", {
-                    width: 5,
-                    height: 15,
-                    fill: "#999999",
-                    stroke: "#666666",
-                    margin: new go.Margin(0, 3, 0, 3)
-                  })
-                )
-                .add(
-                  new go.Shape("Rectangle", {
-                    width: 5,
-                    height: 15,
-                    fill: "#999999",
-                    stroke: "#666666",
-                    margin: new go.Margin(0, 3, 0, 3)
-                  })
-                )
-                .add(
-                  new go.Shape("Rectangle", {
-                    width: 5,
-                    height: 15,
-                    fill: "#999999",
-                    stroke: "#666666",
-                    margin: new go.Margin(0, 3, 0, 3)
-                  })
-                )
             ),
           new go.TextBlock({
             margin: new go.Margin(3, 0, 0, 0),
