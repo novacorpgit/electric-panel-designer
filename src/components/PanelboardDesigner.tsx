@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -129,8 +128,14 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         className: 'grid-panel'
       })
         .add(
-          new go.Shape('LineH', { stroke: 'rgba(169, 169, 169, 0.25)', strokeWidth: 0.5 }),
-          new go.Shape('LineV', { stroke: 'rgba(169, 169, 169, 0.25)', strokeWidth: 0.5 })
+          new go.Shape('LineH', { 
+            stroke: 'rgba(0, 0, 0, 0.2)',  // Darker lines for better visibility
+            strokeWidth: 0.8  // Thicker lines
+          }),
+          new go.Shape('LineV', { 
+            stroke: 'rgba(0, 0, 0, 0.2)',  // Darker lines for better visibility
+            strokeWidth: 0.8  // Thicker lines
+          })
         ),
       'draggingTool.isGridSnapEnabled': true,
       'draggingTool.gridSnapCellSpot': go.Spot.Center,
@@ -638,9 +643,9 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       return grp.isHighlighted;
     }
 
-    const groupFill = 'rgba(41, 128, 185, 0.1)';
+    const groupFill = 'rgba(41, 128, 185, 0.15)';
     const groupStroke = '#3498db';
-    const dropFill = 'rgba(46, 204, 113, 0.2)';
+    const dropFill = 'rgba(46, 204, 113, 0.3)';
     const dropStroke = '#2ecc71';
 
     // Group template definition
@@ -666,7 +671,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
           name: 'SHAPE',
           fill: groupFill,
           stroke: groupStroke,
-          strokeWidth: 1.5,
+          strokeWidth: 2,
           minSize: new go.Size(CellSize.width * 2, CellSize.height * 2),
           shadowVisible: true,
           shadowOffset: new go.Point(3, 3),
@@ -734,9 +739,9 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
 
     // Create the model with the initial enclosures
     myDiagram.model = new go.GraphLinksModel([
-      { key: 'Panel A', isGroup: true, pos: '0 0', size: '200 300' },
-      { key: 'Panel B', isGroup: true, pos: '250 0', size: '200 300' },
-      { key: 'Panel C', isGroup: true, pos: '0 350', size: '450 200' }
+      { key: 'Panel A', isGroup: true, pos: '0 0', size: '250 350' },
+      { key: 'Panel B', isGroup: true, pos: '300 0', size: '250 350' },
+      { key: 'Panel C', isGroup: true, pos: '0 400', size: '550 250' }
     ]);
   };
 

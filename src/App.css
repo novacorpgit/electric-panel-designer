@@ -1,3 +1,4 @@
+
 #root {
   width: 100%;
   height: 100vh;
@@ -36,14 +37,14 @@ body {
 
 /* Make grid more visible */
 .grid-panel line {
-  stroke: rgba(0, 0, 0, 0.1);
-  stroke-width: 0.5;
+  stroke: rgba(0, 0, 0, 0.2) !important;  /* Darker grid lines */
+  stroke-width: 0.8 !important;  /* Thicker grid lines */
 }
 
 /* Make enclosures more visible */
 .enclosure-panel {
-  background-color: rgba(41, 128, 185, 0.1);
-  border: 1.5px solid #3498db;
+  background-color: rgba(41, 128, 185, 0.15) !important;  /* More visible blue background */
+  border: 2px solid #3498db !important;  /* Thicker border */
   border-radius: 8px;
 }
 
