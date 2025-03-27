@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -193,6 +192,13 @@ export const useDiagram = (showGrid: boolean, showDistances: boolean): DiagramHo
       
       const point = diagramInstance.transformViewToDoc(new goInstance.Point(x, y));
       
+      let enclosureGroup = null;
+      diagramInstance.nodes.each(node => {
+        if (node.isGroup) {
+          enclosureGroup = node;
+        }
+      });
+      
       const newNodeData = {
         key: `${nodeInfo.type}-${Date.now()}`,
         type: nodeInfo.type,
@@ -202,7 +208,8 @@ export const useDiagram = (showGrid: boolean, showDistances: boolean): DiagramHo
         color: "white",
         image: getImagePathForType(nodeInfo.type),
         movable: true,
-        resizable: true
+        resizable: true,
+        group: enclosureGroup ? enclosureGroup.key : undefined
       };
       
       console.log("Added new component with data:", newNodeData);
@@ -282,7 +289,13 @@ export const useDiagram = (showGrid: boolean, showDistances: boolean): DiagramHo
         return true;
       };
 
-      myDiagram.model = new go.GraphLinksModel([]);
+      myDiagram.model = new go.GraphLinksModel({
+        linkKeyProperty: 'key',
+        linkFromPortIdProperty: "fromPort",
+        linkToPortIdProperty: "toPort",
+        nodeGroupKeyProperty: "group",
+        nodeIsGroupProperty: "isGroup"
+      });
       
       setTimeout(() => {
         setDiagramReady(true);

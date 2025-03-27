@@ -35,10 +35,11 @@ export const createGroupTemplate = (options: TemplateOptions) => {
     .add(
       new go.Shape("Rectangle", {
         name: "SHAPE",
-        fill: "rgba(173, 216, 230, 0.15)",
-        stroke: "#3498db",
+        fill: "rgba(240, 240, 245, 0.9)",
+        stroke: "#888888",
         strokeWidth: 2,
-        minSize: new go.Size(100, 100)
+        minSize: new go.Size(400, 600),
+        strokeDashArray: [0]
       })
     )
     .add(
@@ -47,17 +48,18 @@ export const createGroupTemplate = (options: TemplateOptions) => {
           new go.Panel("Auto", { margin: 8 })
             .add(
               new go.Shape("Rectangle", {
-                fill: "#3498db",
-                stroke: null,
+                fill: "#f0f0f5",
+                stroke: "#888888",
+                strokeWidth: 1,
                 shadowVisible: false
               })
             )
             .add(
               new go.TextBlock({
                 margin: new go.Margin(4, 4, 2, 2),
-                font: "bold 12px sans-serif",
+                font: "bold 14px sans-serif",
                 stretch: go.GraphObject.Horizontal,
-                stroke: "white",
+                stroke: "#333333",
                 textAlign: "center",
                 editable: true
               }).bind("text", "key")
@@ -65,7 +67,7 @@ export const createGroupTemplate = (options: TemplateOptions) => {
         )
         .add(
           new go.Placeholder({
-            padding: new go.Margin(10, 10),
+            padding: new go.Margin(20, 20),
             name: "PLACEHOLDER",
             alignment: go.Spot.TopLeft
           })

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DiagramHookResult } from '../../hooks/useDiagram';
 
 interface DiagramCanvasProps {
@@ -8,7 +8,32 @@ interface DiagramCanvasProps {
 }
 
 const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ diagramHook, showGrid }) => {
-  const { diagramRef, handleDrop, handleDragOver } = diagramHook;
+  const { diagramRef, handleDrop, handleDragOver, diagramInstance, diagramReady } = diagramHook;
+
+  useEffect(() => {
+    if (diagramReady && diagramInstance) {
+      // Create default enclosure if none exists
+      if (diagramInstance.model.nodeDataArray.length === 0) {
+        createDefaultEnclosure();
+      }
+    }
+  }, [diagramReady, diagramInstance]);
+
+  const createDefaultEnclosure = () => {
+    if (!diagramInstance) return;
+    
+    diagramInstance.startTransaction("Create default enclosure");
+    
+    // Add the default enclosure as a group
+    diagramInstance.model.addNodeData({
+      key: "Electrical Enclosure",
+      isGroup: true,
+      size: "500 700",
+      loc: "0 0"
+    });
+    
+    diagramInstance.commitTransaction("Create default enclosure");
+  };
 
   return (
     <div className="relative h-full w-full flex-1">
