@@ -228,7 +228,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
 
   return (
     <div className="flex h-full w-full">
-      <SidebarProvider collapsed={false} width={280} minWidth={280} maxWidth={500}>
+      <SidebarProvider>
         <DiagramSidebar 
           allowTopLevel={allowTopLevel}
           setAllowTopLevel={setAllowTopLevel}
