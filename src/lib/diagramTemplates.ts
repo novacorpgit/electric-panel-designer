@@ -93,7 +93,6 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
             )
             .add(
               new go.Shape('Rectangle', {
-                alignment: new go.Spot(0.5, 0.3),
                 fill: 'red',
                 stroke: null,
                 width: 15,
@@ -285,7 +284,6 @@ export const createNodeTemplates = (go: GoJSDiagram, CellSize: any, highlightGro
             )
             .add(
               new go.Shape('Rectangle', {
-                alignment: new go.Spot(0.5, 0.3),
                 fill: 'red',
                 stroke: null,
                 width: 15,
