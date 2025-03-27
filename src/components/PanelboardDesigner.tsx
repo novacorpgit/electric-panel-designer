@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -140,7 +141,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
             new go.TextBlock({
               margin: new go.Margin(3, 0, 0, 0),
               font: 'bold 11px Inter, sans-serif',
-              stroke: '#333'
+              stroke: '#333' // Black text for all components
             }).bind('text', 'label')
           )
       );
@@ -224,8 +225,139 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
             new go.TextBlock({
               margin: new go.Margin(3, 0, 0, 0),
               font: 'bold 11px Inter, sans-serif',
-              stroke: '#333',
+              stroke: '#333', // Black text
               text: "NSX250"
+            })
+          )
+      );
+
+    // Special template for Schneider 250A chassis
+    const schneider250Template = new go.Node('Auto', {
+      resizable: true,
+      resizeObjectName: 'SHAPE',
+      locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
+      mouseDragEnter: (e: any, node: any) => {
+        e.handled = true;
+        node.findObject('SHAPE').fill = 'red';
+        e.diagram.currentCursor = 'not-allowed';
+        highlightGroup(node.containingGroup, false);
+      },
+      mouseDragLeave: (e: any, node: any) => node.updateTargetBindings(),
+      mouseDrop: (e: any, node: any) => node.diagram.currentTool.doCancel()
+    })
+      .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
+      .add(
+        new go.Panel("Vertical")
+          .add(
+            new go.Panel("Spot")
+              .add(
+                new go.Shape('Rectangle', {
+                  name: 'SHAPE',
+                  fill: '#6b7280', // Gray chassis color
+                  stroke: '#4b5563',
+                  strokeWidth: 1.5,
+                  minSize: new go.Size(80, 120),
+                  desiredSize: new go.Size(80, 120),
+                  shadowVisible: true,
+                  shadowOffset: new go.Point(2, 2),
+                  shadowBlur: 3,
+                  shadowColor: 'rgba(0, 0, 0, 0.2)'
+                })
+                  .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
+              )
+              // Add the mounting holes
+              .add(
+                new go.Panel("Horizontal", {
+                  alignment: new go.Spot(0.5, 0, 0, 10)
+                })
+                  .add(
+                    new go.Shape("Circle", {
+                      width: 5,
+                      height: 5,
+                      fill: "black",
+                      margin: new go.Margin(0, 15, 0, 15)
+                    })
+                  )
+                  .add(
+                    new go.Shape("Circle", {
+                      width: 5,
+                      height: 5,
+                      fill: "black",
+                      margin: new go.Margin(0, 15, 0, 15)
+                    })
+                  )
+              )
+              // Add the mounting holes at the bottom
+              .add(
+                new go.Panel("Horizontal", {
+                  alignment: new go.Spot(0.5, 1, 0, -10)
+                })
+                  .add(
+                    new go.Shape("Circle", {
+                      width: 5,
+                      height: 5,
+                      fill: "black",
+                      margin: new go.Margin(0, 15, 0, 15)
+                    })
+                  )
+                  .add(
+                    new go.Shape("Circle", {
+                      width: 5,
+                      height: 5,
+                      fill: "black",
+                      margin: new go.Margin(0, 15, 0, 15)
+                    })
+                  )
+              )
+              // Add terminals
+              .add(
+                new go.Panel("Vertical", {
+                  alignment: new go.Spot(0.5, 0.5)
+                })
+                  .add(
+                    new go.Shape("Rectangle", {
+                      width: 40,
+                      height: 8,
+                      fill: "#c0c0c0",
+                      stroke: "#666",
+                      margin: new go.Margin(5, 0, 5, 0)
+                    })
+                  )
+                  .add(
+                    new go.Shape("Rectangle", {
+                      width: 40,
+                      height: 8,
+                      fill: "#c0c0c0",
+                      stroke: "#666",
+                      margin: new go.Margin(5, 0, 5, 0)
+                    })
+                  )
+                  .add(
+                    new go.Shape("Rectangle", {
+                      width: 40,
+                      height: 8,
+                      fill: "#c0c0c0",
+                      stroke: "#666",
+                      margin: new go.Margin(5, 0, 5, 0)
+                    })
+                  )
+              )
+              // Add a reset button
+              .add(
+                new go.Shape("Circle", {
+                  width: 10,
+                  height: 10,
+                  fill: "red",
+                  stroke: "black",
+                  strokeWidth: 1,
+                  alignment: new go.Spot(0.8, 0.2)
+                })
+              ),
+            new go.TextBlock({
+              margin: new go.Margin(3, 0, 0, 0),
+              font: 'bold 11px Inter, sans-serif',
+              stroke: '#333', // Black text
+              text: "Schneider 250A"
             })
           )
       );
@@ -288,7 +420,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
             new go.TextBlock({
               margin: new go.Margin(3, 0, 0, 0),
               font: 'bold 11px Inter, sans-serif',
-              stroke: '#333'
+              stroke: '#333' // Black text
             }).bind('text', 'label')
           )
       );
@@ -353,7 +485,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
             new go.TextBlock({
               margin: new go.Margin(3, 0, 0, 0),
               font: 'bold 11px Inter, sans-serif',
-              stroke: '#FFF' // White text for better contrast
+              stroke: '#333' // Black text
             }).bind('text', 'label')
           )
       );
@@ -437,13 +569,14 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
             new go.TextBlock({
               margin: new go.Margin(3, 0, 0, 0),
               font: 'bold 11px Inter, sans-serif',
-              stroke: '#FFF' // White text for better contrast
+              stroke: '#333' // Black text
             }).bind('text', 'label')
           )
       );
 
     // Add the node templates to the diagram
     myDiagram.nodeTemplateMap.add("NSX250", nsx250Template);
+    myDiagram.nodeTemplateMap.add("Schneider250A", schneider250Template);
     myDiagram.nodeTemplateMap.add("Busbar", busbarTemplate);
     myDiagram.nodeTemplateMap.add("CircuitBreaker", circuitBreakerTemplate);
     myDiagram.nodeTemplateMap.add("Transformer", transformerTemplate);
@@ -610,6 +743,8 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         // Special handling for different component types
         if (key === 'NSX250') {
           nodeData.category = 'NSX250'; // Use the special template
+        } else if (key === 'SCH250A') {
+          nodeData.category = 'Schneider250A'; // Use the Schneider 250A template
         } else if (key.startsWith('BB')) {
           nodeData.category = 'Busbar'; // Use busbar template
           nodeData.color = '#8B4513'; // Brown color for busbars
@@ -715,6 +850,9 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                   <MenubarItem onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90')}>
                     NSX250
                   </MenubarItem>
+                  <MenubarItem onClick={() => addComponent('SCH250A', 'Schneider 250A', '#6b7280', '80 120')}>
+                    Schneider 250A
+                  </MenubarItem>
                   
                   <MenubarSeparator />
                   <MenubarLabel>Transformers</MenubarLabel>
@@ -788,6 +926,14 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                         onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90')}
                       >
                         <span className="text-xs">NSX250</span>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-auto py-2 flex flex-col items-center justify-center border-orange-200 bg-white hover:bg-orange-100"
+                        onClick={() => addComponent('SCH250A', 'Schneider 250A', '#6b7280', '80 120')}
+                      >
+                        <span className="text-xs">Schneider 250A</span>
                       </Button>
                     </div>
                   </div>
@@ -889,6 +1035,9 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                     </ContextMenuItem>
                     <ContextMenuItem onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90')}>
                       NSX250 Breaker
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => addComponent('SCH250A', 'Schneider 250A', '#6b7280', '80 120')}>
+                      Schneider 250A Chassis
                     </ContextMenuItem>
                     <ContextMenuItem onClick={() => addComponent('TX1', 'TX 100kVA', '#666666', '100 100')}>
                       Transformer 100kVA
