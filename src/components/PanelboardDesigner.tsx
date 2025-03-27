@@ -15,6 +15,11 @@ import {
   MenubarLabel,
   MenubarGroup,
 } from "@/components/ui/menubar";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
 
 interface PanelboardDesignerProps {
   // Add any props here
@@ -285,28 +290,10 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
 
       myDiagram.model = new go.GraphLinksModel([
         { 
-          key: 'Panel A', 
+          key: 'Main Panel', 
           isGroup: true, 
           pos: '0 0', 
-          size: '350 350',
-          background: 'rgba(173, 216, 230, 0.3)', // Light blue background with increased opacity
-          stroke: '#3498db', // Blue border
-          category: 'panel'
-        },
-        { 
-          key: 'Panel B', 
-          isGroup: true, 
-          pos: '400 0', 
-          size: '250 350',
-          background: 'rgba(173, 216, 230, 0.3)', // Light blue background with increased opacity
-          stroke: '#3498db', // Blue border
-          category: 'panel'
-        },
-        { 
-          key: 'Panel C', 
-          isGroup: true, 
-          pos: '0 400', 
-          size: '650 250',
+          size: '600 400',
           background: 'rgba(173, 216, 230, 0.3)', // Light blue background with increased opacity
           stroke: '#3498db', // Blue border
           category: 'panel'
@@ -391,15 +378,50 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
             </MenubarContent>
           </MenubarMenu>
         </Menubar>
-        <div className="flex-1 relative">
-          <div 
-            ref={diagramRef} 
-            className="absolute inset-0 gojs-diagram"
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-          />
-          {showGrid && <div className="absolute bottom-2 right-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">Grid: On</div>}
-        </div>
+        <ResizablePanelGroup direction="horizontal" className="flex-1">
+          <ResizablePanel defaultSize={70}>
+            <div className="relative h-full w-full">
+              <div 
+                ref={diagramRef} 
+                className="absolute inset-0 gojs-diagram"
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+              />
+              {showGrid && <div className="absolute bottom-2 right-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">Grid: On</div>}
+            </div>
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={30}>
+            <div className="h-full p-4 bg-gray-50">
+              <h3 className="font-medium mb-4 text-gray-700">Panel Properties</h3>
+              <div className="space-y-2">
+                <div>
+                  <span className="text-sm text-gray-500 block">Panel Name:</span>
+                  <span className="font-medium">Main Panel</span>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500 block">Components:</span>
+                  <span className="font-medium">0</span>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500 block">Size:</span>
+                  <span className="font-medium">600 x 400</span>
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-4"
+                  onClick={() => {
+                    if (diagramInstance) {
+                      diagramInstance.select(diagramInstance.findNodeForKey("Main Panel"));
+                    }
+                  }}
+                >
+                  Select Panel
+                </Button>
+              </div>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </div>
   );
