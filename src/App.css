@@ -1,4 +1,3 @@
-
 #root {
   width: 100%;
   height: 100vh;
@@ -37,15 +36,26 @@ body {
 
 /* Make grid more visible - lighter blue grid */
 .grid-panel line {
-  stroke: rgba(173, 216, 230, 0.4) !important; /* Light blue grid lines */
-  stroke-width: 0.5 !important;
+  stroke: rgba(173, 216, 230, 0.7) !important; /* Increased opacity for better visibility */
+  stroke-width: 0.7 !important; /* Increased width for better visibility */
 }
 
-/* Make enclosures more visible - light blue panels */
-.react-flow__node-group {
-  background-color: rgba(173, 216, 230, 0.15) !important;
+/* Make enclosures more visible - light blue panels with stronger border */
+.panel-shape {
+  background-color: rgba(173, 216, 230, 0.3) !important; /* Increased opacity */
   border: 2px solid #3498db !important;
-  border-radius: 0 !important;
+}
+
+/* Group styling for GoJS groups */
+.go-group {
+  background-color: rgba(173, 216, 230, 0.3) !important;
+  border: 2px solid #3498db !important;
+}
+
+/* Add some highlight for groups */
+.go-group:hover {
+  background-color: rgba(173, 216, 230, 0.4) !important;
+  box-shadow: 0 0 0 2px #3498db !important;
 }
 
 /* Animation for diagram elements */
@@ -184,7 +194,7 @@ body {
 
 /* Panel styling */
 .panel-shape {
-  background-color: rgba(173, 216, 230, 0.15) !important; /* Light blue panels */
+  background-color: rgba(173, 216, 230, 0.3) !important; /* Increased opacity */
   border: 2px solid #3498db !important;
 }
 

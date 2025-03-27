@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -203,9 +202,8 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       const myDiagram = new go.Diagram(diagramRef.current, {
         grid: new go.Panel('Grid', { 
           gridCellSize: CellSize,
-          visible: true,
-          gridStyle: go.Panel.Uniform,
-          className: 'grid-panel'
+          visible: showGrid,
+          gridStyle: go.Panel.Uniform
         })
           .add(
             new go.Shape('LineH', { 
@@ -224,7 +222,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         'undoManager.isEnabled': true,
         'initialContentAlignment': go.Spot.Center,
         "allowDrop": true,
-        "background": "#F8FAFC" // Light background color
+        "backgroundColor": "#F8FAFC" // Light background color
       });
       
       setDiagramInstance(myDiagram);
@@ -236,7 +234,6 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         return grp.isHighlighted;
       }
 
-      // Fix for the error: Pass only the required options object to createNodeTemplates
       const templateOptions = { go, CellSize, highlightGroup };
       const nodeTemplates = createNodeTemplates(templateOptions);
       
@@ -397,6 +394,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
             onDrop={handleDrop}
             onDragOver={handleDragOver}
           />
+          {showGrid && <div className="absolute bottom-2 right-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">Grid: On</div>}
         </div>
       </div>
     </div>
