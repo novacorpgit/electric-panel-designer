@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -33,7 +32,18 @@ import {
   MenubarLabel,
   MenubarGroup,
 } from "@/components/ui/menubar";
-import { Server, Database, Cable, Plug, ToggleLeft, CircuitBoard } from 'lucide-react';
+import { 
+  Server, 
+  Database, 
+  Cable, 
+  Plug, 
+  ToggleLeft, 
+  CircuitBoard, 
+  Ruler, 
+  RulerSquare 
+} from 'lucide-react';
+import { Switch } from './ui/switch';
+import { Checkbox } from './ui/checkbox';
 
 interface PanelboardDesignerProps {
   // Add any props here
@@ -44,6 +54,8 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   const [allowTopLevel, setAllowTopLevel] = useState(false);
   const [goInstance, setGoInstance] = useState<GoJSDiagram | null>(null);
   const [diagramInstance, setDiagramInstance] = useState<any>(null);
+  const [showDistances, setShowDistances] = useState(false);
+  const [distanceLinks, setDistanceLinks] = useState<any[]>([]);
 
   useEffect(() => {
     const initGoJS = async () => {
@@ -72,6 +84,26 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       }
     };
   }, []);
+
+  // Effect to handle distance measurements when enabled/disabled
+  useEffect(() => {
+    if (diagramInstance && goInstance) {
+      if (showDistances) {
+        setupDimensioningLinks();
+        
+        // Update distance measurements when nodes move
+        diagramInstance.addDiagramListener("SelectionMoved", updateDistances);
+        diagramInstance.addDiagramListener("PartResized", updateDistances);
+      } else {
+        // Remove all distance links when disabled
+        clearDistanceLinks();
+        
+        // Remove listeners when disabled
+        diagramInstance.removeDiagramListener("SelectionMoved", updateDistances);
+        diagramInstance.removeDiagramListener("PartResized", updateDistances);
+      }
+    }
+  }, [showDistances, diagramInstance, goInstance]);
 
   const setupDiagram = (go: GoJSDiagram) => {
     const CellSize = new go.Size(10, 10);
@@ -665,11 +697,112 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       }
     };
 
+    // Define link template for dimensioning
+    myDiagram.linkTemplate = new go.Link({
+      layerName: "Foreground",
+      adjusting: go.Link.End,
+      curve: go.Link.None,
+      reshapable: true,
+      resegmentable: true,
+      relinkableFrom: true,
+      relinkableTo: true,
+      toShortLength: 4
+    }).add(
+      new go.Shape({ strokeWidth: 1.5, stroke: "#404040" })
+    ).add(
+      new go.Shape({ toArrow: "OpenTriangle", stroke: "#404040", fill: null })
+    );
+
     myDiagram.model = new go.GraphLinksModel([
       { key: 'Panel A', isGroup: true, pos: '0 0', size: '200 300' },
       { key: 'Panel B', isGroup: true, pos: '250 0', size: '200 300' },
       { key: 'Panel C', isGroup: true, pos: '0 350', size: '450 200' }
     ]);
+  };
+
+  // Function to create dimensioning links between components
+  const setupDimensioningLinks = () => {
+    if (!diagramInstance || !goInstance) return;
+    
+    clearDistanceLinks(); // Clear existing links first
+    
+    // Get all nodes that are components
+    const nodes = diagramInstance.nodes.toArray().filter((node: any) => 
+      !node.isGroup && node.actualBounds && node.actualBounds.width > 0
+    );
+    
+    // Create dimensioning links between nodes
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const node1 = nodes[i];
+        const node2 = nodes[j];
+        
+        // Create horizontal dimensioning links (if nodes are roughly aligned horizontally)
+        if (Math.abs(node1.location.y - node2.location.y) < 100) {
+          createDimensioningLink(node1, node2, "Horizontal");
+        }
+        
+        // Create vertical dimensioning links (if nodes are roughly aligned vertically)
+        if (Math.abs(node1.location.x - node2.location.x) < 100) {
+          createDimensioningLink(node1, node2, "Vertical");
+        }
+      }
+    }
+  };
+
+  // Function to create a dimensioning link between two nodes
+  const createDimensioningLink = (from: any, to: any, orientation: "Horizontal" | "Vertical") => {
+    if (!diagramInstance || !goInstance) return;
+    
+    const DimensioningLink = goInstance.DimensioningLink;
+    if (!DimensioningLink) {
+      console.error("DimensioningLink extension not available");
+      return;
+    }
+    
+    try {
+      const link = new DimensioningLink({
+        fromNode: from,
+        toNode: to,
+        category: "Dimensioning"
+      });
+      
+      link.dimension = orientation;
+      link.dimensionSegmentIndex = 0;
+      link.dimensionOffset = orientation === "Horizontal" ? 20 : 20;
+      link.extension1Length = 10;
+      link.extension2Length = 10;
+      
+      // Store the link so we can remove it later
+      setDistanceLinks(prev => [...prev, link]);
+      
+      // Add the link to the diagram
+      diagramInstance.add(link);
+    } catch (error) {
+      console.error("Error creating dimensioning link:", error);
+    }
+  };
+
+  // Function to clear all distance links
+  const clearDistanceLinks = () => {
+    if (!diagramInstance) return;
+    
+    // Remove all existing dimensioning links
+    distanceLinks.forEach(link => {
+      if (diagramInstance.findLinkForData(link)) {
+        diagramInstance.remove(link);
+      }
+    });
+    
+    setDistanceLinks([]);
+  };
+
+  // Function to update distance measurements when components move
+  const updateDistances = () => {
+    if (showDistances) {
+      // Clear and re-create all distance links
+      setupDimensioningLinks();
+    }
   };
 
   const handleSaveModel = () => {
@@ -729,6 +862,13 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     });
   };
 
+  const toggleDistances = () => {
+    setShowDistances(!showDistances);
+    toast({
+      description: `Distance measurements ${!showDistances ? 'enabled' : 'disabled'}`,
+    });
+  };
+
   const addComponent = (key: string, label: string, color: string, size: string, image?: string) => {
     if (diagramInstance && goInstance) {
       try {
@@ -763,6 +903,11 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         const newNode = diagramInstance.findNodeForData(nodeData);
         if (newNode) {
           diagramInstance.centerRect(newNode.actualBounds);
+        }
+
+        // Update distance measurements if enabled
+        if (showDistances) {
+          setTimeout(() => updateDistances(), 100);
         }
 
         toast({
@@ -884,6 +1029,9 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                   <MenubarItem onClick={toggleTopLevel}>
                     {allowTopLevel ? "Disable" : "Enable"} Top-Level Placement
                   </MenubarItem>
+                  <MenubarItem onClick={toggleDistances}>
+                    {showDistances ? "Hide" : "Show"} Component Distances
+                  </MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
             </Menubar>
@@ -895,7 +1043,25 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                 <CircuitBoard className="w-5 h-5" />
                 Quick Add
               </h3>
-              <ScrollArea className="h-[calc(100vh-300px)]">
+              <div className="border-b pb-3 mb-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="flex items-center space-x-2">
+                    <Switch 
+                      id="distance-toggle" 
+                      checked={showDistances} 
+                      onCheckedChange={toggleDistances} 
+                    />
+                    <label 
+                      htmlFor="distance-toggle" 
+                      className="text-sm font-medium leading-none flex items-center gap-1 cursor-pointer"
+                    >
+                      <Ruler className="h-4 w-4" />
+                      Component Distances
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <ScrollArea className="h-[calc(100vh-350px)]">
                 <div className="space-y-3">
                   <div className="bg-orange-50 rounded-md p-2">
                     <div className="font-medium text-orange-700 flex items-center mb-2">
@@ -1019,8 +1185,14 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
             <div className="col-span-1 md:col-span-4">
               <ContextMenu>
                 <ContextMenuTrigger>
-                  <div className="border rounded-lg shadow-lg bg-white overflow-hidden">
+                  <div className="border rounded-lg shadow-lg bg-white overflow-hidden relative">
                     <div ref={diagramRef} className="gojs-diagram h-[calc(100vh-140px)] w-full"></div>
+                    {showDistances && (
+                      <div className="absolute top-2 right-2 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
+                        <RulerSquare className="h-3 w-3 mr-1" />
+                        Distance Mode
+                      </div>
+                    )}
                   </div>
                 </ContextMenuTrigger>
                 <ContextMenuContent className="w-64">
@@ -1047,6 +1219,13 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                     </ContextMenuItem>
                     <ContextMenuItem onClick={() => addComponent('DS1', 'Disconnector', '#D946EF', '70 60')}>
                       Disconnector Switch
+                    </ContextMenuItem>
+                  </ContextMenuGroup>
+                  <ContextMenuSeparator />
+                  <ContextMenuGroup>
+                    <ContextMenuLabel>Measurement</ContextMenuLabel>
+                    <ContextMenuItem onClick={toggleDistances}>
+                      {showDistances ? "Hide" : "Show"} Distances
                     </ContextMenuItem>
                   </ContextMenuGroup>
                 </ContextMenuContent>

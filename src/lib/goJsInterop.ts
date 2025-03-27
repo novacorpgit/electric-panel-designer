@@ -22,6 +22,10 @@ export interface GoJSDiagram {
   Picture: any; // Enhanced Picture support
   GraphObject: any; // Add GraphObject for image stretch constants
   Part: any; // Add Part support
+  Link: any; // Add Link support for DimensioningLink
+  DimensioningLink: any; // Add DimensioningLink extension
+  LayeredDigraphLayout: any; // For layout management
+  "DraggingTool.prototype": any; // For customizing the dragging tool
 }
 
 // Global declaration for GoJS
@@ -45,6 +49,8 @@ declare global {
       Picture: any; // Enhanced Picture support
       GraphObject: any; // Add GraphObject for image stretch constants
       Part: any; // Add Part support
+      Link: any; // Add Link support
+      "DraggingTool.prototype": any; // For dragging tool prototype
     };
   }
 }
@@ -60,8 +66,23 @@ export const loadGoJS = (): Promise<void> => {
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/gojs/release/go.js';
     script.async = true;
-    script.onload = () => resolve();
+    script.onload = () => {
+      // After loading main GoJS, load the DimensioningLink extension
+      loadDimensioningExtension().then(() => resolve());
+    };
     script.onerror = () => reject(new Error('Failed to load GoJS'));
+    document.head.appendChild(script);
+  });
+};
+
+// Helper function to load the DimensioningLink extension
+const loadDimensioningExtension = (): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/gojs/extensions/DimensioningLink.js';
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load DimensioningLink extension'));
     document.head.appendChild(script);
   });
 };

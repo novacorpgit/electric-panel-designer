@@ -172,3 +172,44 @@ body {
   box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.1), 0 2px 4px rgba(0, 0, 0, 0.3);
   border-radius: 3px;
 }
+
+/* Dimensioning link styling */
+.dimensioning-link {
+  stroke: #3b82f6;
+  stroke-width: 1;
+  stroke-dasharray: 3, 2;
+}
+
+.dimension-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  fill: #3b82f6;
+  font-weight: 500;
+}
+
+.dimension-extension {
+  stroke: #3b82f6;
+  stroke-width: 1;
+}
+
+.dimension-arrow {
+  fill: #3b82f6;
+  stroke: #3b82f6;
+}
+
+/* Distance mode badge */
+.distance-mode-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  padding: 4px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.3s ease;
+}
