@@ -18,7 +18,8 @@ export interface GoJSDiagram {
   GraphLinksModel: any;
   Palette: any;
   GridLayout: any;
-  Margin: any; // Add Margin to the interface
+  Margin: any;
+  Picture: any; // Add Picture for image support
 }
 
 // Global declaration for GoJS
@@ -38,7 +39,8 @@ declare global {
       GraphLinksModel: any;
       Palette: any;
       GridLayout: any;
-      Margin: any; // Add Margin to the window.go interface
+      Margin: any;
+      Picture: any; // Add Picture to window.go interface
     };
   }
 }
