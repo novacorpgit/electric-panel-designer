@@ -35,45 +35,47 @@ const DesignerSidebar: React.FC<DesignerSidebarProps> = ({ paletteRefs }) => {
         </p>
       </SidebarHeader>
       <SidebarContent className="p-0 overflow-visible">
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-4 py-2 bg-orange-50 text-orange-700 flex items-center">
-            <Server className="w-4 h-4 mr-2" />
-            Circuit Breakers
-          </SidebarGroupLabel>
-          <SidebarGroupContent className="max-h-none">
-            <div className="p-3 grid grid-cols-2 gap-2" ref={paletteRefs.circuitBreakers}></div>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-4 py-2 bg-purple-50 text-purple-700 flex items-center">
-            <Cable className="w-4 h-4 mr-2" />
-            Transformers
-          </SidebarGroupLabel>
-          <SidebarGroupContent className="max-h-none">
-            <div className="p-3 grid grid-cols-2 gap-2" ref={paletteRefs.transformers}></div>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-4 py-2 bg-blue-50 text-blue-700 flex items-center">
-            <Plug className="w-4 h-4 mr-2" />
-            Busbars
-          </SidebarGroupLabel>
-          <SidebarGroupContent className="max-h-none">
-            <div className="p-3 grid grid-cols-2 gap-2" ref={paletteRefs.busbars}></div>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-4 py-2 bg-pink-50 text-pink-700 flex items-center">
-            <ToggleLeft className="w-4 h-4 mr-2" />
-            Switches
-          </SidebarGroupLabel>
-          <SidebarGroupContent className="max-h-none">
-            <div className="p-3 grid grid-cols-2 gap-2" ref={paletteRefs.switches}></div>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <ScrollArea className="h-[calc(100vh-120px)]">
+          <SidebarGroup>
+            <SidebarGroupLabel className="px-4 py-3 bg-orange-50 text-orange-700 flex items-center font-medium">
+              <Server className="w-4 h-4 mr-2" />
+              Circuit Breakers
+            </SidebarGroupLabel>
+            <SidebarGroupContent className="max-h-none">
+              <div className="p-4 grid grid-cols-2 gap-3 bg-orange-50/30" ref={paletteRefs.circuitBreakers}></div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          
+          <SidebarGroup>
+            <SidebarGroupLabel className="px-4 py-3 bg-purple-50 text-purple-700 flex items-center font-medium">
+              <Cable className="w-4 h-4 mr-2" />
+              Transformers
+            </SidebarGroupLabel>
+            <SidebarGroupContent className="max-h-none">
+              <div className="p-4 grid grid-cols-2 gap-3 bg-purple-50/30" ref={paletteRefs.transformers}></div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          
+          <SidebarGroup>
+            <SidebarGroupLabel className="px-4 py-3 bg-blue-50 text-blue-700 flex items-center font-medium">
+              <Plug className="w-4 h-4 mr-2" />
+              Busbars
+            </SidebarGroupLabel>
+            <SidebarGroupContent className="max-h-none">
+              <div className="p-4 grid grid-cols-2 gap-3 bg-blue-50/30" ref={paletteRefs.busbars}></div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          
+          <SidebarGroup>
+            <SidebarGroupLabel className="px-4 py-3 bg-pink-50 text-pink-700 flex items-center font-medium">
+              <ToggleLeft className="w-4 h-4 mr-2" />
+              Switches
+            </SidebarGroupLabel>
+            <SidebarGroupContent className="max-h-none">
+              <div className="p-4 grid grid-cols-2 gap-3 bg-pink-50/30" ref={paletteRefs.switches}></div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </ScrollArea>
       </SidebarContent>
     </Sidebar>
   );

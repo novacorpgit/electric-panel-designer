@@ -60,20 +60,21 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
 
   const setupDiagram = (go: GoJSDiagram) => {
     // Define cell size (smaller grid size)
-    const CellSize = new go.Size(20, 20); // Reduced from 25,25 to make grid smaller
+    const CellSize = new go.Size(16, 16); // Reduced from 20,20 to make grid even smaller
     
     // Create the main diagram
     const myDiagram = new go.Diagram(diagramRef.current, {
       grid: new go.Panel('Grid', { gridCellSize: CellSize })
         .add(
-          new go.Shape('LineH', { stroke: 'rgba(169, 169, 169, 0.2)' }), // Lighter grid lines
-          new go.Shape('LineV', { stroke: 'rgba(169, 169, 169, 0.2)' })  // Lighter grid lines
+          new go.Shape('LineH', { stroke: 'rgba(169, 169, 169, 0.15)' }), // Lighter grid lines
+          new go.Shape('LineV', { stroke: 'rgba(169, 169, 169, 0.15)' })  // Lighter grid lines
         ),
       'draggingTool.isGridSnapEnabled': true,
       'draggingTool.gridSnapCellSpot': go.Spot.Center,
       'resizingTool.isGridSnapEnabled': true,
       'animationManager.isEnabled': true, // Enable animations for better UX
-      'undoManager.isEnabled': true
+      'undoManager.isEnabled': true,
+      'initialContentAlignment': go.Spot.Center // Center the diagram content
     });
     
     setDiagramInstance(myDiagram);
@@ -254,32 +255,41 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         })
           .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
           .add(
-            new go.Panel("Vertical").add(
-              new go.Panel("Spot").add(
-                new go.Shape('Rectangle', {
-                  name: 'SHAPE',
-                  fill: 'white',
-                  stroke: '#34495e',
-                  strokeWidth: 1.5,
-                  minSize: CellSize,
-                  desiredSize: new go.Size(70, 90),
-                  shadowVisible: true,
-                  shadowOffset: new go.Point(2, 2),
-                  shadowBlur: 3,
-                  shadowColor: 'rgba(0, 0, 0, 0.2)'
-                })
-                  .bind('fill', 'color')
-                  .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify),
-                new go.Picture()
-                  .bind("source", "image")
-                  .bind("desiredSize", "size", go.Size.parse, go.Size.stringify)
-              ),
-              new go.TextBlock({
-                margin: new go.Margin(3, 0, 0, 0),
-                font: 'bold 11px Inter, sans-serif',
-                stroke: '#333'
-              }).bind('text', 'label')
-            )
+            new go.Panel("Vertical")
+              .add(
+                new go.Panel("Spot")
+                  .add(
+                    new go.Shape('Rectangle', {
+                      name: 'SHAPE',
+                      fill: 'white',
+                      stroke: '#34495e',
+                      strokeWidth: 1.5,
+                      minSize: CellSize,
+                      desiredSize: new go.Size(70, 90),
+                      shadowVisible: true,
+                      shadowOffset: new go.Point(2, 2),
+                      shadowBlur: 3,
+                      shadowColor: 'rgba(0, 0, 0, 0.2)'
+                    })
+                      .bind('fill', 'color')
+                      .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
+                  )
+                  .add(
+                    new go.Shape("Rectangle", {
+                      name: "IMAGE",
+                      fill: "transparent",
+                      stroke: null,
+                      desiredSize: new go.Size(60, 80),
+                      source: "/lovable-uploads/03c3bec1-ce4c-4de6-991a-b00dc5f3000f.png"
+                    })
+                      .bind("source", "image")
+                  ),
+                new go.TextBlock({
+                  margin: new go.Margin(3, 0, 0, 0),
+                  font: 'bold 11px Inter, sans-serif',
+                  stroke: '#333'
+                }).bind('text', 'label')
+              )
           ),
       groupTemplate: myDiagram.groupTemplate,
       maxSelectionCount: 1,
