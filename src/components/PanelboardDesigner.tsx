@@ -295,35 +295,24 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   const getDefaultSizeForType = (type: string): string => {
     switch (type) {
       case "NSX250":
-        return "70 90";
+        return "60 100";
       case "Schneider250A":
-        return "80 120";
+        return "70 100";
       case "Busbar":
         return "150 30";
-      case "CircuitBreaker":
-        return "50 80";
+      case "ACB":
+        return "60 100";
+      case "MCB":
+        return "60 100";
       case "Transformer":
-        return "100 100";
+        return "100 120";
       default:
-        return "50 80";
+        return "60 100";
     }
   };
 
   const getImagePathForType = (type: string): string => {
-    switch (type) {
-      case "NSX250":
-        return "/lovable-uploads/b79bb85b-d7f1-41eb-9957-1af1528aaa78.png";
-      case "Schneider250A":
-        return "/lovable-uploads/schneider250a.png";
-      case "Busbar":
-        return "/lovable-uploads/copper-busbar.png";
-      case "CircuitBreaker":
-        return "/lovable-uploads/circuit-breaker.png";
-      case "Transformer":
-        return "/lovable-uploads/transformer.png";
-      default:
-        return "";
-    }
+    return "";
   };
 
   return (

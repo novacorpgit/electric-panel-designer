@@ -2,16 +2,14 @@
 import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
-  Server, 
-  Database, 
+  Zap,
+  CircuitBoard,
   Cable, 
-  Plug, 
   ToggleLeft, 
-  CircuitBoard, 
   Ruler,
-  Square,
   Grid3X3,
-  Move
+  Move,
+  AlertTriangle
 } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { Checkbox } from './ui/checkbox';
@@ -57,9 +55,27 @@ const DiagramSidebar: React.FC<DiagramSidebarProps> = ({
               <div 
                 className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left cursor-grab border border-gray-200"
                 draggable
-                onDragStart={(e) => handleDragStart(e, "NSX250", { label: "NSX250" })}
+                onDragStart={(e) => handleDragStart(e, "ACB", { label: "ACB 1" })}
+              >
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+                <span>ACB</span>
+                <Move className="h-4 w-4 ml-auto text-gray-400" />
+              </div>
+              <div 
+                className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left cursor-grab border border-gray-200"
+                draggable
+                onDragStart={(e) => handleDragStart(e, "MCB", { label: "MCB 1P" })}
               >
                 <CircuitBoard className="h-5 w-5 text-gray-500" />
+                <span>MCB</span>
+                <Move className="h-4 w-4 ml-auto text-gray-400" />
+              </div>
+              <div 
+                className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left cursor-grab border border-gray-200"
+                draggable
+                onDragStart={(e) => handleDragStart(e, "NSX250", { label: "NSX250" })}
+              >
+                <CircuitBoard className="h-5 w-5 text-gray-700" />
                 <span>NSX250</span>
                 <Move className="h-4 w-4 ml-auto text-gray-400" />
               </div>
@@ -68,7 +84,7 @@ const DiagramSidebar: React.FC<DiagramSidebarProps> = ({
                 draggable
                 onDragStart={(e) => handleDragStart(e, "Schneider250A", { label: "Schneider 250A" })}
               >
-                <CircuitBoard className="h-5 w-5 text-gray-500" />
+                <CircuitBoard className="h-5 w-5 text-gray-600" />
                 <span>Schneider 250A</span>
                 <Move className="h-4 w-4 ml-auto text-gray-400" />
               </div>
@@ -81,25 +97,16 @@ const DiagramSidebar: React.FC<DiagramSidebarProps> = ({
               <div 
                 className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left cursor-grab border border-gray-200"
                 draggable
-                onDragStart={(e) => handleDragStart(e, "Busbar", { label: "Busbar" })}
+                onDragStart={(e) => handleDragStart(e, "Busbar", { label: "Bus Bar 100A" })}
               >
-                <Plug className="h-5 w-5 text-gray-500" />
+                <Zap className="h-5 w-5 text-amber-700" />
                 <span>Busbar</span>
                 <Move className="h-4 w-4 ml-auto text-gray-400" />
               </div>
               <div 
                 className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left cursor-grab border border-gray-200"
                 draggable
-                onDragStart={(e) => handleDragStart(e, "CircuitBreaker", { label: "Circuit Breaker" })}
-              >
-                <ToggleLeft className="h-5 w-5 text-gray-500" />
-                <span>Circuit Breaker</span>
-                <Move className="h-4 w-4 ml-auto text-gray-400" />
-              </div>
-              <div 
-                className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full rounded text-left cursor-grab border border-gray-200"
-                draggable
-                onDragStart={(e) => handleDragStart(e, "Transformer", { label: "Transformer" })}
+                onDragStart={(e) => handleDragStart(e, "Transformer", { label: "TX 250kVA" })}
               >
                 <Cable className="h-5 w-5 text-gray-500" />
                 <span>Transformer</span>
