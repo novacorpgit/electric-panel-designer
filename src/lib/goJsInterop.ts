@@ -50,6 +50,8 @@ declare global {
       GraphObject: any; // Add GraphObject for image stretch constants
       Part: any; // Add Part support
       Link: any; // Add Link support
+      LayeredDigraphLayout: any; // For layout management
+      DimensioningLink: any; // Add DimensioningLink extension
       "DraggingTool.prototype": any; // For dragging tool prototype
     };
   }

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -39,8 +40,8 @@ import {
   Plug, 
   ToggleLeft, 
   CircuitBoard, 
-  Ruler, 
-  RulerSquare 
+  Ruler,
+  Square 
 } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { Checkbox } from './ui/checkbox';
@@ -1189,7 +1190,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                     <div ref={diagramRef} className="gojs-diagram h-[calc(100vh-140px)] w-full"></div>
                     {showDistances && (
                       <div className="absolute top-2 right-2 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
-                        <RulerSquare className="h-3 w-3 mr-1" />
+                        <Ruler className="h-3 w-3 mr-1" />
                         Distance Mode
                       </div>
                     )}
