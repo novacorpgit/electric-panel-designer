@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '../components/ui/use-toast';
 import { initializeGoJS, GoJSDiagram } from '../lib/goJsInterop';
@@ -745,10 +746,13 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     
     clearDistanceLinks(); // Clear existing links first
     
-    // Get all nodes that are components
-    const nodes = diagramInstance.nodes.toArray().filter((node: any) => 
-      !node.isGroup && node.actualBounds && node.actualBounds.width > 0
-    );
+    // Get all nodes that are components - fix for the toArray issue
+    const nodes = [];
+    diagramInstance.nodes.each(node => {
+      if (!node.isGroup && node.actualBounds && node.actualBounds.width > 0) {
+        nodes.push(node);
+      }
+    });
     
     // Create dimensioning links between nodes
     for (let i = 0; i < nodes.length; i++) {
