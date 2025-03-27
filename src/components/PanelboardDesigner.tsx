@@ -15,11 +15,6 @@ import {
   MenubarLabel,
   MenubarGroup,
 } from "@/components/ui/menubar";
-import {
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle,
-} from "@/components/ui/resizable";
 
 interface PanelboardDesignerProps {
   // Add any props here
@@ -82,7 +77,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
 
   useEffect(() => {
     if (!diagramReady) return;
-
+    
     if (diagramInstance && goInstance) {
       diagramInstance.addDiagramListener("SelectionMoved", handleSelectionMoved);
       diagramInstance.addDiagramListener("SelectionCopied", handleSelectionMoved);
@@ -183,7 +178,9 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         pos: point.toString(),
         size: getDefaultSizeForType(nodeInfo.type),
         color: "white",
-        image: getImagePathForType(nodeInfo.type)
+        image: getImagePathForType(nodeInfo.type),
+        movable: true,
+        resizable: true
       };
       
       console.log("Added new component with data:", newNodeData);
@@ -213,12 +210,12 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         })
           .add(
             new go.Shape('LineH', { 
-              stroke: 'rgba(173, 216, 230, 0.7)', // Light blue grid lines with higher opacity
-              strokeWidth: 0.7 // Slightly thicker lines for better visibility
+              stroke: 'rgba(173, 216, 230, 0.7)', 
+              strokeWidth: 0.7
             }),
             new go.Shape('LineV', { 
-              stroke: 'rgba(173, 216, 230, 0.7)', // Light blue grid lines with higher opacity
-              strokeWidth: 0.7 // Slightly thicker lines for better visibility
+              stroke: 'rgba(173, 216, 230, 0.7)', 
+              strokeWidth: 0.7
             })
           ),
         'draggingTool.isGridSnapEnabled': true,
@@ -227,7 +224,9 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         'animationManager.isEnabled': true,
         'undoManager.isEnabled': true,
         'initialContentAlignment': go.Spot.Center,
-        "allowDrop": true
+        "allowDrop": true,
+        "allowMove": true,
+        "allowResize": true
       });
       
       myDiagram.div.className = "gojs-diagram";
@@ -261,44 +260,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         return true;
       };
 
-      myDiagram.mouseDragOver = (e: any) => {
-        if (!allowTopLevel) {
-          const tool = e.diagram.toolManager.draggingTool;
-          if (!tool.draggingParts.all((p: any) => p instanceof go.Group || (!p.isTopLevel && tool.draggingParts.has(p.containingGroup)))) {
-            e.diagram.currentCursor = 'not-allowed';
-          } else {
-            e.diagram.currentCursor = '';
-          }
-        }
-      };
-
-      myDiagram.mouseDrop = (e: any) => {
-        if (allowTopLevel) {
-          if (!e.diagram.commandHandler.addTopLevelParts(e.diagram.selection, true)) {
-            e.diagram.currentTool.doCancel();
-          }
-        } else {
-          if (
-            !e.diagram.selection.all((p: any) => {
-              return p instanceof go.Group || (!p.isTopLevel && p.containingGroup.isSelected);
-            })
-          ) {
-            e.diagram.currentTool.doCancel();
-          }
-        }
-      };
-
-      myDiagram.model = new go.GraphLinksModel([
-        { 
-          key: 'Main Panel', 
-          isGroup: true, 
-          pos: '0 0', 
-          size: '600 400',
-          background: 'rgba(173, 216, 230, 0.3)', // Light blue background with increased opacity
-          stroke: '#3498db', // Blue border
-          category: 'panel'
-        }
-      ]);
+      myDiagram.model = new go.GraphLinksModel([]);
       
       setTimeout(() => {
         setDiagramReady(true);
@@ -309,15 +271,15 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   const getDefaultSizeForType = (type: string): string => {
     switch (type) {
       case "NSX250":
-        return "60 100";
+        return "70 120";
       case "Schneider250A":
-        return "70 100";
+        return "70 120";
       case "Busbar":
         return "150 30";
       case "ACB":
-        return "60 100";
+        return "70 120";
       case "MCB":
-        return "60 100";
+        return "50 110";
       case "Transformer":
         return "100 120";
       default:
@@ -378,50 +340,19 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
             </MenubarContent>
           </MenubarMenu>
         </Menubar>
-        <ResizablePanelGroup direction="horizontal" className="flex-1">
-          <ResizablePanel defaultSize={70}>
-            <div className="relative h-full w-full">
-              <div 
-                ref={diagramRef} 
-                className="absolute inset-0 gojs-diagram"
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-              />
-              {showGrid && <div className="absolute bottom-2 right-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">Grid: On</div>}
+        <div className="relative h-full w-full flex-1">
+          <div 
+            ref={diagramRef} 
+            className="absolute inset-0 gojs-diagram"
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+          />
+          {showGrid && 
+            <div className="absolute bottom-2 right-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
+              Grid: On
             </div>
-          </ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={30}>
-            <div className="h-full p-4 bg-gray-50">
-              <h3 className="font-medium mb-4 text-gray-700">Panel Properties</h3>
-              <div className="space-y-2">
-                <div>
-                  <span className="text-sm text-gray-500 block">Panel Name:</span>
-                  <span className="font-medium">Main Panel</span>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500 block">Components:</span>
-                  <span className="font-medium">0</span>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500 block">Size:</span>
-                  <span className="font-medium">600 x 400</span>
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full mt-4"
-                  onClick={() => {
-                    if (diagramInstance) {
-                      diagramInstance.select(diagramInstance.findNodeForKey("Main Panel"));
-                    }
-                  }}
-                >
-                  Select Panel
-                </Button>
-              </div>
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+          }
+        </div>
       </div>
     </div>
   );

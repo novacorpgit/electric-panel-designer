@@ -8,6 +8,7 @@ export const createBaseNodeTemplate = ({ go, CellSize, highlightGroup }: Templat
     resizable: true,
     resizeObjectName: 'SHAPE',
     locationSpot: new go.Spot(0, 0, CellSize.width / 2, CellSize.height / 2),
+    movable: true,
     mouseDragEnter: (e: any, node: any) => {
       e.handled = true;
       node.findObject('SHAPE').fill = 'red';
@@ -18,6 +19,8 @@ export const createBaseNodeTemplate = ({ go, CellSize, highlightGroup }: Templat
     mouseDrop: (e: any, node: any) => node.diagram.currentTool.doCancel()
   })
     .bindTwoWay('position', 'pos', go.Point.parse, go.Point.stringify)
+    .bindTwoWay('movable', 'movable', function(m) { return m; }, function(v) { return v === undefined ? true : v; })
+    .bindTwoWay('resizable', 'resizable', function(r) { return r; }, function(v) { return v === undefined ? true : v; })
     .add(
       new go.Panel("Vertical")
         .add(
@@ -34,6 +37,26 @@ export const createBaseNodeTemplate = ({ go, CellSize, highlightGroup }: Templat
               })
                 .bind('fill', 'color')
                 .bindTwoWay('desiredSize', 'size', go.Size.parse, go.Size.stringify)
+            )
+            // Terminal connections at top
+            .add(
+              new go.Shape('Rectangle', {
+                fill: '#111111',
+                stroke: null,
+                width: CellSize.width * 6,
+                height: 5,
+                alignment: new go.Spot(0.5, 0.05)
+              })
+            )
+            // Terminal connections at bottom
+            .add(
+              new go.Shape('Rectangle', {
+                fill: '#111111',
+                stroke: null,
+                width: CellSize.width * 6,
+                height: 5,
+                alignment: new go.Spot(0.5, 0.95)
+              })
             )
             .add(
               new go.Picture({

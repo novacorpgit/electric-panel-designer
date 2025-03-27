@@ -25,8 +25,13 @@ export const createGroupTemplate = (options: TemplateOptions) => {
         if (!ok) grp.diagram.currentTool.doCancel();
       },
       handlesDragDropForMembers: true,
-      ...createBaseShadow(go)
+      ...createBaseShadow(go),
+      resizable: true,
+      resizeObjectName: "SHAPE",
+      movable: true
     })
+    .bindTwoWay("location", "loc", go.Point.parse, go.Point.stringify)
+    .bindTwoWay("desiredSize", "size", go.Size.parse, go.Size.stringify)
     .add(
       new go.Shape("Rectangle", {
         name: "SHAPE",
