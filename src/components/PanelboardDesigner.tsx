@@ -44,7 +44,6 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   const [goInstance, setGoInstance] = useState<GoJSDiagram | null>(null);
   const [diagramInstance, setDiagramInstance] = useState<any>(null);
 
-  // Initialize GoJS
   useEffect(() => {
     const initGoJS = async () => {
       try {
@@ -67,7 +66,6 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     initGoJS();
 
     return () => {
-      // Cleanup if necessary
       if (diagramInstance) {
         diagramInstance.div = null;
       }
@@ -75,10 +73,8 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
   }, []);
 
   const setupDiagram = (go: GoJSDiagram) => {
-    // Define cell size (even smaller grid size for more precision)
     const CellSize = new go.Size(10, 10);
     
-    // Create the main diagram with context menu enabled
     const myDiagram = new go.Diagram(diagramRef.current, {
       grid: new go.Panel('Grid', { gridCellSize: CellSize })
         .add(
@@ -96,7 +92,6 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     
     setDiagramInstance(myDiagram);
 
-    // Node template for electrical components
     myDiagram.nodeTemplate = new go.Node('Auto', {
       resizable: true,
       resizeObjectName: 'SHAPE',
@@ -149,7 +144,6 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
           )
       );
 
-    // Helper function to highlight groups
     function highlightGroup(grp: any, show: boolean) {
       if (!grp) return false;
       const tool = grp.diagram.toolManager.draggingTool;
@@ -157,13 +151,11 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       return grp.isHighlighted;
     }
 
-    // Define colors for groups
     const groupFill = 'rgba(41, 128, 185, 0.1)';
     const groupStroke = '#3498db';
     const dropFill = 'rgba(46, 204, 113, 0.2)';
     const dropStroke = '#2ecc71';
 
-    // Group template (panels/racks)
     myDiagram.groupTemplate = new go.Group({
       layerName: 'Background',
       resizable: true,
@@ -203,13 +195,11 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
         }).bind('text', 'key')
       );
 
-    // Validation for group membership
     myDiagram.commandHandler.memberValidation = (grp: any, node: any) => {
       if (grp instanceof go.Group && node instanceof go.Group) return false;
       return true;
     };
 
-    // Diagram background behavior
     myDiagram.mouseDragOver = (e: any) => {
       if (!allowTopLevel) {
         const tool = e.diagram.toolManager.draggingTool;
@@ -237,7 +227,6 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       }
     };
 
-    // Initial diagram model with panels (enclosures)
     myDiagram.model = new go.GraphLinksModel([
       { key: 'Panel A', isGroup: true, pos: '0 0', size: '200 300' },
       { key: 'Panel B', isGroup: true, pos: '250 0', size: '200 300' },
@@ -302,11 +291,9 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
     });
   };
 
-  // Function to add a component to the diagram
   const addComponent = (key: string, label: string, color: string, size: string, image?: string) => {
     if (diagramInstance && goInstance) {
       try {
-        // Create a new node data
         const nodeData: any = { 
           key: `${key}_${Math.floor(Math.random() * 1000)}`, 
           label, 
@@ -315,15 +302,12 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
           pos: '100 100' 
         };
 
-        // Add image if provided
         if (image) {
           nodeData.image = image;
         }
 
-        // Add the node to the diagram
         diagramInstance.model.addNodeData(nodeData);
         
-        // Center on the new node
         const newNode = diagramInstance.findNodeForData(nodeData);
         if (newNode) {
           diagramInstance.centerRect(newNode.actualBounds);
@@ -342,8 +326,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
       }
     }
   };
-  
-  // Function to add a new enclosure/panel
+
   const addEnclosure = (name: string) => {
     if (diagramInstance) {
       try {
@@ -412,7 +395,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                   <MenubarItem onClick={() => addComponent('ACB2', 'ACB 2', '#F97316', '50 80')}>ACB 2</MenubarItem>
                   <MenubarItem onClick={() => addComponent('MCB1P', 'MCB 1P', '#F97316', '50 50')}>MCB 1P</MenubarItem>
                   <MenubarItem onClick={() => addComponent('MCB3P', 'MCB 3P', '#F97316', '50 50')}>MCB 3P</MenubarItem>
-                  <MenubarItem onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90', '/lovable-uploads/03c3bec1-ce4c-4de6-991a-b00dc5f3000f.png')}>
+                  <MenubarItem onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90', '/lovable-uploads/b79bb85b-d7f1-41eb-9957-1af1528aaa78.png')}>
                     NSX250
                   </MenubarItem>
                   
@@ -459,7 +442,6 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
               </h3>
               <ScrollArea className="h-[calc(100vh-300px)]">
                 <div className="space-y-3">
-                  {/* Circuit Breaker Quick Access */}
                   <div className="bg-orange-50 rounded-md p-2">
                     <div className="font-medium text-orange-700 flex items-center mb-2">
                       <Server className="w-4 h-4 mr-2" />
@@ -486,14 +468,13 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                         variant="outline" 
                         size="sm" 
                         className="h-auto py-2 flex flex-col items-center justify-center border-orange-200 bg-white hover:bg-orange-100"
-                        onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90', '/lovable-uploads/03c3bec1-ce4c-4de6-991a-b00dc5f3000f.png')}
+                        onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90', '/lovable-uploads/b79bb85b-d7f1-41eb-9957-1af1528aaa78.png')}
                       >
                         <span className="text-xs">NSX250</span>
                       </Button>
                     </div>
                   </div>
                   
-                  {/* Transformers Quick Access */}
                   <div className="bg-purple-50 rounded-md p-2">
                     <div className="font-medium text-purple-700 flex items-center mb-2">
                       <Cable className="w-4 h-4 mr-2" />
@@ -519,7 +500,6 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                     </div>
                   </div>
                   
-                  {/* Busbars Quick Access */}
                   <div className="bg-blue-50 rounded-md p-2">
                     <div className="font-medium text-blue-700 flex items-center mb-2">
                       <Plug className="w-4 h-4 mr-2" />
@@ -545,7 +525,6 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                     </div>
                   </div>
                   
-                  {/* Switches Quick Access */}
                   <div className="bg-pink-50 rounded-md p-2">
                     <div className="font-medium text-pink-700 flex items-center mb-2">
                       <ToggleLeft className="w-4 h-4 mr-2" />
@@ -591,7 +570,7 @@ const PanelboardDesigner: React.FC<PanelboardDesignerProps> = () => {
                     <ContextMenuItem onClick={() => addComponent('ACB1', 'ACB 1', '#F97316', '50 80')}>
                       ACB Circuit Breaker
                     </ContextMenuItem>
-                    <ContextMenuItem onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90', '/lovable-uploads/03c3bec1-ce4c-4de6-991a-b00dc5f3000f.png')}>
+                    <ContextMenuItem onClick={() => addComponent('NSX250', 'NSX250', '#404040', '70 90', '/lovable-uploads/b79bb85b-d7f1-41eb-9957-1af1528aaa78.png')}>
                       NSX250 Breaker
                     </ContextMenuItem>
                     <ContextMenuItem onClick={() => addComponent('TX1', 'TX 100kVA', '#8B5CF6', '100 100')}>
