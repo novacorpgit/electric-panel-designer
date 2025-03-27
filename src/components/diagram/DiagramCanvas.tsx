@@ -43,6 +43,9 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ diagramHook, showGrid }) 
         onDrop={handleDrop}
         onDragOver={handleDragOver}
       />
+      <div className="absolute bottom-2 left-2 px-2 py-1 bg-white/80 text-gray-800 text-xs font-medium rounded">
+        <span className="text-xs text-gray-600">Components auto-adjust within enclosures due to the GridLayout in the group template</span>
+      </div>
       {showGrid && 
         <div className="absolute bottom-2 right-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
           Grid: On
